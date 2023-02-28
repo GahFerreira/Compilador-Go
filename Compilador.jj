@@ -1,0 +1,662 @@
+PARSER_BEGIN(Teste)
+
+public class Teste
+{
+  public static void main(String args[]) throws ParseException, TokenMgrError
+  {
+    Teste parser = new Teste(System.in);
+	
+	parser.Inicio();
+  }
+}
+
+PARSER_END(Teste)
+
+
+SKIP:
+{
+  /** Espaços em Branco */
+  " "
+| "\t"
+| "\n"
+| "\r"
+}
+
+TOKEN :
+{
+  < SEMICOLON: ";" >
+|
+  /** Identificados Pré-Declarados */
+  /** Tipos */
+  < ANY : "any" >
+|
+  < BOOL : "bool" >
+|
+  < BYTE : "byte" >
+|
+  < COMPARABLE : "comparable" >
+|
+  < COMPLEX64 : "complex64" >
+|
+  < COMPLEX128 : "complex128" >
+|
+  < ERROR : "error" >
+|
+  < FLOAT32 : "float32" >
+|
+  < FLOAT64 : "float64" >
+|
+  < INT : "int" >
+|
+  < INT8 : "int8" >
+|
+  < INT16 : "int16" >
+|
+  < INT32 : "int32" >
+|
+  < INT64 : "int64" >
+|
+  < RUNE : "rune" >
+|
+  < STRING : "string" >
+|
+  < UINT : "uint" >
+|
+  < UINT8 : "uint8" >
+|
+  < UINT16 : "uint16" >
+|
+  < UINT32 : "uint32" >
+|
+  < UINT64 : "uint64" >
+|
+  < UINTPTR : "uintptr" >
+|
+  /** Constantes */
+  < TRUE : "true" >
+|
+  < FALSE : "false" >
+|
+  < IOTA : "iota" >
+|
+  /** Valor zero */
+  < NIL : "nil" >
+|
+  /** Funções */
+  < APPEND : "append" >
+|
+  < CAP : "cap" >
+|
+  < CLOSE : "close" >
+|
+  < COMPLEX : "complex" >
+|
+  < COPY : "copy" >
+|
+  < DELETE : "delete" >
+|
+  < IMAG : "imag" >
+|
+  < LEN : "len" >
+|
+  < MAKE : "make" >
+|
+  < NEW : "new" >
+|
+  < PANIC : "panic" >
+|
+  < PRINT : "print" >
+|
+  < PRINTLN : "println" >
+|
+  < REAL : "real" >
+|
+  < RECOVER : "recover" >
+|
+  /** Palavras-chave */
+  < BREAK : "break" >
+|
+  < DEFAULT_TOKEN : "default" >
+|
+  < FUNC : "func" >
+|
+  < INTERFACE : "interface" >
+|
+  < SELECT : "select" >
+|
+  < CASE : "case" >
+|
+  < DEFER : "defer" >
+|
+  < GO : "go" >
+|
+  < MAP : "map" >
+|
+  < STRUCT : "struct" >
+|
+  < CHAN : "chan" >
+|
+  < ELSE : "else" >
+|
+  < GOTO : "goto" >
+|
+  < PACKAGE : "package" >
+|
+  < SWITCH : "switch" >
+|
+  < CONST : "const" >
+|
+  < FALLTHROUGH : "fallthrough" >
+|
+  < IF : "if" >
+|
+  < RANGE : "range" >
+|
+  < TYPE : "type" >
+|
+  < CONTINUE : "continue" >
+|
+  < FOR : "for" >
+|
+  < IMPORT : "import" >
+|
+  < RETURN : "return" >
+|
+  < VAR : "var" >
+|
+  /** Demais identificadores */
+  < ID: ["_", "a"-"z", "A"-"Z"] ( ["_", "a"-"z", "A"-"Z", "0"-"9"] )* >
+|
+  < NUMERO: ( ["0"-"9"] )+ >
+}
+
+void Inicio() :
+{
+  Token t;
+}
+{
+  (
+    t=<SEMICOLON>
+	{
+	  System.out.println("SEMICOLON " + t.image);
+	}
+	
+	|
+  
+    t=<ANY>
+    {
+      System.out.println("ANY " + t.image);
+    }
+
+    |
+
+    t=<BOOL>
+    {
+      System.out.println("BOOL " + t.image);
+    }
+
+    |
+
+    t=<BYTE>
+    {
+      System.out.println("BYTE " + t.image);
+    }
+
+    |
+
+    t=<COMPARABLE>
+    {
+      System.out.println("COMPARABLE " + t.image);
+    }
+
+    |
+
+    t=<COMPLEX64>
+    {
+      System.out.println("COMPLEX64 " + t.image);
+    }
+
+    |
+
+    t=<COMPLEX128>
+    {
+      System.out.println("COMPLEX128 " + t.image);
+    }
+
+    |
+
+    t=<ERROR>
+    {
+      System.out.println("ERROR " + t.image);
+    }
+
+    |
+
+    t=<FLOAT32>
+    {
+      System.out.println("FLOAT32 " + t.image);
+    }
+
+    |
+
+    t=<FLOAT64>
+    {
+      System.out.println("FLOAT64 " + t.image);
+    }
+
+    |
+
+    t=<INT>
+    {
+      System.out.println("INT " + t.image);
+    }
+
+    |
+
+    t=<INT8>
+    {
+      System.out.println("INT8 " + t.image);
+    }
+
+    |
+
+    t=<INT16>
+    {
+      System.out.println("INT16 " + t.image);
+    }
+
+    |
+
+    t=<INT32>
+    {
+      System.out.println("INT32 " + t.image);
+    }
+
+    |
+
+    t=<INT64>
+    {
+      System.out.println("INT64 " + t.image);
+    }
+
+    |
+
+    t=<RUNE>
+    {
+      System.out.println("RUNE " + t.image);
+    }
+
+    |
+
+    t=<STRING>
+    {
+      System.out.println("STRING " + t.image);
+    }
+
+    |
+
+    t=<UINT>
+    {
+      System.out.println("UINT " + t.image);
+    }
+
+    |
+
+    t=<UINT8>
+    {
+      System.out.println("UINT8 " + t.image);
+    }
+
+    |
+
+    t=<UINT16>
+    {
+      System.out.println("UINT16 " + t.image);
+    }
+
+    |
+
+    t=<UINT32>
+    {
+      System.out.println("UINT32 " + t.image);
+    }
+
+    |
+
+    t=<UINT64>
+    {
+      System.out.println("UINT64 " + t.image);
+    }
+
+    |
+
+    t=<UINTPTR>
+    {
+      System.out.println("UINTPTR " + t.image);
+    }
+
+    |
+
+    t=<TRUE>
+    {
+      System.out.println("TRUE " + t.image);
+    }
+
+    |
+
+    t=<FALSE>
+    {
+      System.out.println("FALSE " + t.image);
+    }
+
+    |
+
+    t=<IOTA>
+    {
+      System.out.println("IOTA " + t.image);
+    }
+
+    |
+
+    t=<NIL>
+    {
+      System.out.println("NIL " + t.image);
+    }
+
+    |
+
+    t=<APPEND>
+    {
+      System.out.println("APPEND " + t.image);
+    }
+
+    |
+
+    t=<CAP>
+    {
+      System.out.println("CAP " + t.image);
+    }
+
+    |
+
+    t=<CLOSE>
+    {
+      System.out.println("CLOSE " + t.image);
+    }
+
+    |
+
+    t=<COMPLEX>
+    {
+      System.out.println("COMPLEX " + t.image);
+    }
+
+    |
+
+    t=<COPY>
+    {
+      System.out.println("COPY " + t.image);
+    }
+
+    |
+
+    t=<DELETE>
+    {
+      System.out.println("DELETE " + t.image);
+    }
+
+    |
+
+    t=<IMAG>
+    {
+      System.out.println("IMAG " + t.image);
+    }
+
+    |
+
+    t=<LEN>
+    {
+      System.out.println("LEN " + t.image);
+    }
+
+    |
+
+    t=<MAKE>
+    {
+      System.out.println("MAKE " + t.image);
+    }
+
+    |
+
+    t=<NEW>
+    {
+      System.out.println("NEW " + t.image);
+    }
+
+    |
+
+    t=<PANIC>
+    {
+      System.out.println("PANIC " + t.image);
+    }
+
+    |
+
+    t=<PRINT>
+    {
+      System.out.println("PRINT " + t.image);
+    }
+
+    |
+
+    t=<PRINTLN>
+    {
+      System.out.println("PRINTLN " + t.image);
+    }
+
+    |
+
+    t=<REAL>
+    {
+      System.out.println("REAL " + t.image);
+    }
+
+    |
+
+    t=<RECOVER>
+    {
+      System.out.println("RECOVER " + t.image);
+    }
+
+    |
+
+    t=<BREAK>
+    {
+      System.out.println("BREAK " + t.image);
+    }
+
+    |
+
+    t=<DEFAULT_TOKEN>
+    {
+      System.out.println("DEFAULT_TOKEN " + t.image);
+    }
+
+    |
+
+    t=<FUNC>
+    {
+      System.out.println("FUNC " + t.image);
+    }
+
+    |
+
+    t=<INTERFACE>
+    {
+      System.out.println("INTERFACE " + t.image);
+    }
+
+    |
+
+    t=<SELECT>
+    {
+      System.out.println("SELECT " + t.image);
+    }
+
+    |
+
+    t=<CASE>
+    {
+      System.out.println("CASE " + t.image);
+    }
+
+    |
+
+    t=<DEFER>
+    {
+      System.out.println("DEFER " + t.image);
+    }
+
+    |
+
+    t=<GO>
+    {
+      System.out.println("GO " + t.image);
+    }
+
+    |
+
+    t=<MAP>
+    {
+      System.out.println("MAP " + t.image);
+    }
+
+    |
+
+    t=<STRUCT>
+    {
+      System.out.println("STRUCT " + t.image);
+    }
+
+    |
+
+    t=<CHAN>
+    {
+      System.out.println("CHAN " + t.image);
+    }
+
+    |
+
+    t=<ELSE>
+    {
+      System.out.println("ELSE " + t.image);
+    }
+
+    |
+
+    t=<GOTO>
+    {
+      System.out.println("GOTO " + t.image);
+    }
+
+    |
+
+    t=<PACKAGE>
+    {
+      System.out.println("PACKAGE " + t.image);
+    }
+
+    |
+
+    t=<SWITCH>
+    {
+      System.out.println("SWITCH " + t.image);
+    }
+
+    |
+
+    t=<CONST>
+    {
+      System.out.println("CONST " + t.image);
+    }
+
+    |
+
+    t=<FALLTHROUGH>
+    {
+      System.out.println("FALLTHROUGH " + t.image);
+    }
+
+    |
+
+    t=<IF>
+    {
+      System.out.println("IF " + t.image);
+    }
+
+    |
+
+    t=<RANGE>
+    {
+      System.out.println("RANGE " + t.image);
+    }
+
+    |
+
+    t=<TYPE>
+    {
+      System.out.println("TYPE " + t.image);
+    }
+
+    |
+
+    t=<CONTINUE>
+    {
+      System.out.println("CONTINUE " + t.image);
+    }
+
+    |
+
+    t=<FOR>
+    {
+      System.out.println("FOR " + t.image);
+    }
+
+    |
+
+    t=<IMPORT>
+    {
+      System.out.println("IMPORT " + t.image);
+    }
+
+    |
+
+    t=<RETURN>
+    {
+      System.out.println("RETURN " + t.image);
+    }
+
+    |
+
+    t=<VAR>
+    {
+      System.out.println("VAR " + t.image);
+    }
+
+    |
+
+    t=<ID>
+    {
+      System.out.println("ID " + t.image);
+    }
+
+    |
+
+    t=<NUMERO>
+    {
+      System.out.println("NUMERO " + t.image);
+    }
+  )*
+
+  <EOF>
+}
