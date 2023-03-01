@@ -2,3 +2,5 @@
 *.opt
 *.class
 *.java
+*.bat
+Compilador_Old.jj

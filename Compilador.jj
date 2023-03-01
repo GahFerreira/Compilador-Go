@@ -1,660 +1,1102 @@
-PARSER_BEGIN(Teste)
+PARSER_BEGIN(Compilador)
 
-public class Teste
+public class Compilador
 {
   public static void main(String args[]) throws ParseException, TokenMgrError
   {
-    Teste parser = new Teste(System.in);
-	
-	parser.Inicio();
+    Compilador parser = new Compilador(System.in);
+
+    parser.Inicio();
   }
 }
 
-PARSER_END(Teste)
+PARSER_END(Compilador)
 
 
 SKIP:
 {
-  /** EspaÃ§os em Branco */
+  /** Espaços em Branco */
   " "
 | "\t"
 | "\n"
 | "\r"
 }
 
-TOKEN :
+TOKEN:
 {
-  < SEMICOLON: ";" >
-|
-  /** Identificados PrÃ©-Declarados */
   /** Tipos */
-  < ANY : "any" >
+  < TOKEN_ANY: "any" >
 |
-  < BOOL : "bool" >
+  < TOKEN_BOOL: "bool" >
 |
-  < BYTE : "byte" >
+  < TOKEN_BYTE: "byte" >
 |
-  < COMPARABLE : "comparable" >
+  < TOKEN_COMPARABLE: "comparable" >
 |
-  < COMPLEX64 : "complex64" >
+  < TOKEN_COMPLEX64: "complex64" >
 |
-  < COMPLEX128 : "complex128" >
+  < TOKEN_COMPLEX128: "complex128" >
 |
-  < ERROR : "error" >
+  < TOKEN_ERROR: "error" >
 |
-  < FLOAT32 : "float32" >
+  < TOKEN_FLOAT32: "float32" >
 |
-  < FLOAT64 : "float64" >
+  < TOKEN_FLOAT64: "float64" >
 |
-  < INT : "int" >
+  < TOKEN_INT: "int" >
 |
-  < INT8 : "int8" >
+  < TOKEN_INT8: "int8" >
 |
-  < INT16 : "int16" >
+  < TOKEN_INT16: "int16" >
 |
-  < INT32 : "int32" >
+  < TOKEN_INT32: "int32" >
 |
-  < INT64 : "int64" >
+  < TOKEN_INT64: "int64" >
 |
-  < RUNE : "rune" >
+  < TOKEN_RUNE: "rune" >
 |
-  < STRING : "string" >
+  < TOKEN_STRING: "string" >
 |
-  < UINT : "uint" >
+  < TOKEN_UINT: "uint" >
 |
-  < UINT8 : "uint8" >
+  < TOKEN_UINT8: "uint8" >
 |
-  < UINT16 : "uint16" >
+  < TOKEN_UINT16: "uint16" >
 |
-  < UINT32 : "uint32" >
+  < TOKEN_UINT32: "uint32" >
 |
-  < UINT64 : "uint64" >
+  < TOKEN_UINT64: "uint64" >
 |
-  < UINTPTR : "uintptr" >
+  < TOKEN_UINTPTR: "uintptr" >
 |
   /** Constantes */
-  < TRUE : "true" >
+  < TOKEN_TRUE: "true" >
 |
-  < FALSE : "false" >
+  < TOKEN_FALSE: "false" >
 |
-  < IOTA : "iota" >
+  < TOKEN_IOTA: "iota" >
 |
-  /** Valor zero */
-  < NIL : "nil" >
+  /** Funções */
+  < TOKEN_APPEND: "append" >
 |
-  /** FunÃ§Ãµes */
-  < APPEND : "append" >
+  < TOKEN_CAP: "cap" >
 |
-  < CAP : "cap" >
+  < TOKEN_CLOSE: "close" >
 |
-  < CLOSE : "close" >
+  < TOKEN_COMPLEX: "complex" >
 |
-  < COMPLEX : "complex" >
+  < TOKEN_COPY: "copy" >
 |
-  < COPY : "copy" >
+  < TOKEN_DELETE: "delete" >
 |
-  < DELETE : "delete" >
+  < TOKEN_IMAG: "imag" >
 |
-  < IMAG : "imag" >
+  < TOKEN_LEN: "len" >
 |
-  < LEN : "len" >
+  < TOKEN_MAKE: "make" >
 |
-  < MAKE : "make" >
+  < TOKEN_NEW: "new" >
 |
-  < NEW : "new" >
+  < TOKEN_PANIC: "panic" >
 |
-  < PANIC : "panic" >
+  < TOKEN_PRINTLN: "println" >
 |
-  < PRINT : "print" >
+  < TOKEN_PRINT: "print" >
 |
-  < PRINTLN : "println" >
+  < TOKEN_REAL: "real" >
 |
-  < REAL : "real" >
+  < TOKEN_RECOVER: "recover" >
 |
-  < RECOVER : "recover" >
+  /** Palavras-Chave */
+  < TOKEN_BREAK: "break" >
 |
-  /** Palavras-chave */
-  < BREAK : "break" >
+  < TOKEN_DEFAULT: "default" >
 |
-  < DEFAULT_TOKEN : "default" >
+  < TOKEN_FUNC: "func" >
 |
-  < FUNC : "func" >
+  < TOKEN_INTERFACE: "interface" >
 |
-  < INTERFACE : "interface" >
+  < TOKEN_SELECT: "select" >
 |
-  < SELECT : "select" >
+  < TOKEN_CASE: "case" >
 |
-  < CASE : "case" >
+  < TOKEN_DEFER: "defer" >
 |
-  < DEFER : "defer" >
+  < TOKEN_GO: "go" >
 |
-  < GO : "go" >
+  < TOKEN_MAP: "map" >
 |
-  < MAP : "map" >
+  < TOKEN_STRUCT: "struct" >
 |
-  < STRUCT : "struct" >
+  < TOKEN_CHAN: "chan" >
 |
-  < CHAN : "chan" >
+  < TOKEN_ELSE: "else" >
 |
-  < ELSE : "else" >
+  < TOKEN_GOTO: "goto" >
 |
-  < GOTO : "goto" >
+  < TOKEN_PACKAGE: "package" >
 |
-  < PACKAGE : "package" >
+  < TOKEN_SWITCH: "switch" >
 |
-  < SWITCH : "switch" >
+  < TOKEN_CONST: "const" >
 |
-  < CONST : "const" >
+  < TOKEN_FALLTHROUGH: "fallthrough" >
 |
-  < FALLTHROUGH : "fallthrough" >
+  < TOKEN_IF: "if" >
 |
-  < IF : "if" >
+  < TOKEN_RANGE: "range" >
 |
-  < RANGE : "range" >
+  < TOKEN_TYPE: "type" >
 |
-  < TYPE : "type" >
+  < TOKEN_CONTINUE: "continue" >
 |
-  < CONTINUE : "continue" >
+  < TOKEN_FOR: "for" >
 |
-  < FOR : "for" >
+  < TOKEN_IMPORT: "import" >
 |
-  < IMPORT : "import" >
+  < TOKEN_RETURN: "return" >
 |
-  < RETURN : "return" >
+  < TOKEN_VAR: "var" >
 |
-  < VAR : "var" >
+  /** Operadores */
+  < TOKEN_DIFFERENT: "!=" >
 |
-  /** Demais identificadores */
-  < ID: ["_", "a"-"z", "A"-"Z"] ( ["_", "a"-"z", "A"-"Z", "0"-"9"] )* >
+  < TOKEN_LESS_EQUAL: "<=" >
 |
-  < NUMERO: ( ["0"-"9"] )+ >
+  < TOKEN_GREATER_EQUAL: ">=" >
+|
+  < TOKEN_SHORT_DECLARATION: ":=" >
+|
+  < TOKEN_ELLIPSIS: "..." >
+|
+  < TOKEN_OPEN_PARENTHESIS: "(" >
+|
+  < TOKEN_CLOSE_PARENTHESIS: ")" >
+|
+  < TOKEN_OPEN_BRACKET: "[" >
+|
+  < TOKEN_CLOSE_BRACKET: "]" >
+|
+  < TOKEN_OPEN_CURLY_BRACKET: "{" >
+|
+  < TOKEN_CLOSE_CURLY_BRACKET: "}" >
+|
+  < TOKEN_COMMA: "," >
+|
+  < TOKEN_SEMICOLON: ";" >
+|
+  < TOKEN_DOT: "." >
+|
+  < TOKEN_COLON: ":" >
+|
+  < TOKEN_AND: "&&" >
+|
+  < TOKEN_OR: "||" >
+|
+  < TOKEN_CHANNEL_DIRECTION: "<-" >
+|
+  < TOKEN_PLUS_PLUS: "++" >
+|
+  < TOKEN_MINUS_MINUS: "--" >
+|
+  < TOKEN_BIT_AND_NOT_ASSIGN: "&^=" >
+|
+  < TOKEN_BIT_AND_ASSIGN: "&=" >
+|
+  < TOKEN_BIT_OR_ASSIGN: "|=" >
+|
+  < TOKEN_BIT_XOR_ASSIGN: "^=" >
+|
+  < TOKEN_LEFT_SHIFT_ASSIGN: "<<=" >
+|
+  < TOKEN_RIGHT_SHIFT_ASSIGN: ">>=" >
+|
+  < TOKEN_PLUS_ASSIGN: "+=" >
+|
+  < TOKEN_MINUS_ASSIGN: "-=" >
+|
+  < TOKEN_MULTIPLY_ASSIGN: "*=" >
+|
+  < TOKEN_DIVIDE_ASSIGN: "/=" >
+|
+  < TOKEN_REMAINDER_ASSIGN: "%=" >
+|
+  < TOKEN_BIT_AND_NOT: "&^" >
+|
+  < TOKEN_BIT_AND: "&" >
+|
+  < TOKEN_BIT_OR: "|" >
+|
+  < TOKEN_BIT_XOR: "^" >
+|
+  < TOKEN_LEFT_SHIFT: "<<" >
+|
+  < TOKEN_RIGHT_SHIFT: ">>" >
+|
+  < TOKEN_PLUS: "+" >
+|
+  < TOKEN_MINUS: "-" >
+|
+  < TOKEN_MULTIPLY: "*" >
+|
+  < TOKEN_DIVIDE: "/" >
+|
+  < TOKEN_REMAINDER: "%" >
+|
+  < TOKEN_EQUAL: "==" >
+|
+  < TOKEN_LESS: "<" >
+|
+  < TOKEN_GREATER: ">" >
+|
+  < TOKEN_ASSIGN: "=" >
+|
+  < TOKEN_NOT: "!" >
+|
+  < TOKEN_TILDE: "~" >
+|
+  /** Números */
+  < TOKEN_DECIMAL_NUMBER: "0" | (["1"-"9"] (("_")? ["0"-"9"])*) >
+|
+  < TOKEN_BINARY_NUMBER: "0" ("b" | "B") (("_")? ["0"-"1"])+ >
+|
+  < TOKEN_OCTAL_NUMBER: "0" ("o" | "O")? (("_")? ["0"-"7"])+ >
+|
+  < TOKEN_HEXADECIMAL_NUMBER: "0" ("x" | "X") (("_")? (["0"-"9"] | ["A"-"F"] | ["a"-"f"]))+ >
+|
+  /** Valor Zero */
+  < TOKEN_NIL: "NIL" >
 }
 
-void Inicio() :
+
+void Inicio():
 {
   Token t;
 }
 {
   (
-    t=<SEMICOLON>
-	{
-	  System.out.println("SEMICOLON " + t.image);
-	}
-	
-	|
-  
-    t=<ANY>
+    t = <TOKEN_ANY>
     {
-      System.out.println("ANY " + t.image);
+      System.out.println("TOKEN_ANY " + t.image);
     }
 
     |
 
-    t=<BOOL>
+    t = <TOKEN_BOOL>
     {
-      System.out.println("BOOL " + t.image);
+      System.out.println("TOKEN_BOOL " + t.image);
     }
 
     |
 
-    t=<BYTE>
+    t = <TOKEN_BYTE>
     {
-      System.out.println("BYTE " + t.image);
+      System.out.println("TOKEN_BYTE " + t.image);
     }
 
     |
 
-    t=<COMPARABLE>
+    t = <TOKEN_COMPARABLE>
     {
-      System.out.println("COMPARABLE " + t.image);
+      System.out.println("TOKEN_COMPARABLE " + t.image);
     }
 
     |
 
-    t=<COMPLEX64>
+    t = <TOKEN_COMPLEX64>
     {
-      System.out.println("COMPLEX64 " + t.image);
+      System.out.println("TOKEN_COMPLEX64 " + t.image);
     }
 
     |
 
-    t=<COMPLEX128>
+    t = <TOKEN_COMPLEX128>
     {
-      System.out.println("COMPLEX128 " + t.image);
+      System.out.println("TOKEN_COMPLEX128 " + t.image);
     }
 
     |
 
-    t=<ERROR>
+    t = <TOKEN_ERROR>
     {
-      System.out.println("ERROR " + t.image);
+      System.out.println("TOKEN_ERROR " + t.image);
     }
 
     |
 
-    t=<FLOAT32>
+    t = <TOKEN_FLOAT32>
     {
-      System.out.println("FLOAT32 " + t.image);
+      System.out.println("TOKEN_FLOAT32 " + t.image);
     }
 
     |
 
-    t=<FLOAT64>
+    t = <TOKEN_FLOAT64>
     {
-      System.out.println("FLOAT64 " + t.image);
+      System.out.println("TOKEN_FLOAT64 " + t.image);
     }
 
     |
 
-    t=<INT>
+    t = <TOKEN_INT>
     {
-      System.out.println("INT " + t.image);
+      System.out.println("TOKEN_INT " + t.image);
     }
 
     |
 
-    t=<INT8>
+    t = <TOKEN_INT8>
     {
-      System.out.println("INT8 " + t.image);
+      System.out.println("TOKEN_INT8 " + t.image);
     }
 
     |
 
-    t=<INT16>
+    t = <TOKEN_INT16>
     {
-      System.out.println("INT16 " + t.image);
+      System.out.println("TOKEN_INT16 " + t.image);
     }
 
     |
 
-    t=<INT32>
+    t = <TOKEN_INT32>
     {
-      System.out.println("INT32 " + t.image);
+      System.out.println("TOKEN_INT32 " + t.image);
     }
 
     |
 
-    t=<INT64>
+    t = <TOKEN_INT64>
     {
-      System.out.println("INT64 " + t.image);
+      System.out.println("TOKEN_INT64 " + t.image);
     }
 
     |
 
-    t=<RUNE>
+    t = <TOKEN_RUNE>
     {
-      System.out.println("RUNE " + t.image);
+      System.out.println("TOKEN_RUNE " + t.image);
     }
 
     |
 
-    t=<STRING>
+    t = <TOKEN_STRING>
     {
-      System.out.println("STRING " + t.image);
+      System.out.println("TOKEN_STRING " + t.image);
     }
 
     |
 
-    t=<UINT>
+    t = <TOKEN_UINT>
     {
-      System.out.println("UINT " + t.image);
+      System.out.println("TOKEN_UINT " + t.image);
     }
 
     |
 
-    t=<UINT8>
+    t = <TOKEN_UINT8>
     {
-      System.out.println("UINT8 " + t.image);
+      System.out.println("TOKEN_UINT8 " + t.image);
     }
 
     |
 
-    t=<UINT16>
+    t = <TOKEN_UINT16>
     {
-      System.out.println("UINT16 " + t.image);
+      System.out.println("TOKEN_UINT16 " + t.image);
     }
 
     |
 
-    t=<UINT32>
+    t = <TOKEN_UINT32>
     {
-      System.out.println("UINT32 " + t.image);
+      System.out.println("TOKEN_UINT32 " + t.image);
     }
 
     |
 
-    t=<UINT64>
+    t = <TOKEN_UINT64>
     {
-      System.out.println("UINT64 " + t.image);
+      System.out.println("TOKEN_UINT64 " + t.image);
     }
 
     |
 
-    t=<UINTPTR>
+    t = <TOKEN_UINTPTR>
     {
-      System.out.println("UINTPTR " + t.image);
+      System.out.println("TOKEN_UINTPTR " + t.image);
     }
 
     |
 
-    t=<TRUE>
+    t = <TOKEN_TRUE>
     {
-      System.out.println("TRUE " + t.image);
+      System.out.println("TOKEN_TRUE " + t.image);
     }
 
     |
 
-    t=<FALSE>
+    t = <TOKEN_FALSE>
     {
-      System.out.println("FALSE " + t.image);
+      System.out.println("TOKEN_FALSE " + t.image);
     }
 
     |
 
-    t=<IOTA>
+    t = <TOKEN_IOTA>
     {
-      System.out.println("IOTA " + t.image);
+      System.out.println("TOKEN_IOTA " + t.image);
     }
 
     |
 
-    t=<NIL>
+    t = <TOKEN_APPEND>
     {
-      System.out.println("NIL " + t.image);
+      System.out.println("TOKEN_APPEND " + t.image);
     }
 
     |
 
-    t=<APPEND>
+    t = <TOKEN_CAP>
     {
-      System.out.println("APPEND " + t.image);
+      System.out.println("TOKEN_CAP " + t.image);
     }
 
     |
 
-    t=<CAP>
+    t = <TOKEN_CLOSE>
     {
-      System.out.println("CAP " + t.image);
+      System.out.println("TOKEN_CLOSE " + t.image);
     }
 
     |
 
-    t=<CLOSE>
+    t = <TOKEN_COMPLEX>
     {
-      System.out.println("CLOSE " + t.image);
+      System.out.println("TOKEN_COMPLEX " + t.image);
     }
 
     |
 
-    t=<COMPLEX>
+    t = <TOKEN_COPY>
     {
-      System.out.println("COMPLEX " + t.image);
+      System.out.println("TOKEN_COPY " + t.image);
     }
 
     |
 
-    t=<COPY>
+    t = <TOKEN_DELETE>
     {
-      System.out.println("COPY " + t.image);
+      System.out.println("TOKEN_DELETE " + t.image);
     }
 
     |
 
-    t=<DELETE>
+    t = <TOKEN_IMAG>
     {
-      System.out.println("DELETE " + t.image);
+      System.out.println("TOKEN_IMAG " + t.image);
     }
 
     |
 
-    t=<IMAG>
+    t = <TOKEN_LEN>
     {
-      System.out.println("IMAG " + t.image);
+      System.out.println("TOKEN_LEN " + t.image);
     }
 
     |
 
-    t=<LEN>
+    t = <TOKEN_MAKE>
     {
-      System.out.println("LEN " + t.image);
+      System.out.println("TOKEN_MAKE " + t.image);
     }
 
     |
 
-    t=<MAKE>
+    t = <TOKEN_NEW>
     {
-      System.out.println("MAKE " + t.image);
+      System.out.println("TOKEN_NEW " + t.image);
     }
 
     |
 
-    t=<NEW>
+    t = <TOKEN_PANIC>
     {
-      System.out.println("NEW " + t.image);
+      System.out.println("TOKEN_PANIC " + t.image);
     }
 
     |
 
-    t=<PANIC>
+    t = <TOKEN_PRINTLN>
     {
-      System.out.println("PANIC " + t.image);
+      System.out.println("TOKEN_PRINTLN " + t.image);
     }
 
     |
 
-    t=<PRINT>
+    t = <TOKEN_PRINT>
     {
-      System.out.println("PRINT " + t.image);
+      System.out.println("TOKEN_PRINT " + t.image);
     }
 
     |
 
-    t=<PRINTLN>
+    t = <TOKEN_REAL>
     {
-      System.out.println("PRINTLN " + t.image);
+      System.out.println("TOKEN_REAL " + t.image);
     }
 
     |
 
-    t=<REAL>
+    t = <TOKEN_RECOVER>
     {
-      System.out.println("REAL " + t.image);
+      System.out.println("TOKEN_RECOVER " + t.image);
     }
 
     |
 
-    t=<RECOVER>
+    t = <TOKEN_BREAK>
     {
-      System.out.println("RECOVER " + t.image);
+      System.out.println("TOKEN_BREAK " + t.image);
     }
 
     |
 
-    t=<BREAK>
+    t = <TOKEN_DEFAULT>
     {
-      System.out.println("BREAK " + t.image);
+      System.out.println("TOKEN_DEFAULT " + t.image);
     }
 
     |
 
-    t=<DEFAULT_TOKEN>
+    t = <TOKEN_FUNC>
     {
-      System.out.println("DEFAULT_TOKEN " + t.image);
+      System.out.println("TOKEN_FUNC " + t.image);
     }
 
     |
 
-    t=<FUNC>
+    t = <TOKEN_INTERFACE>
     {
-      System.out.println("FUNC " + t.image);
+      System.out.println("TOKEN_INTERFACE " + t.image);
     }
 
     |
 
-    t=<INTERFACE>
+    t = <TOKEN_SELECT>
     {
-      System.out.println("INTERFACE " + t.image);
+      System.out.println("TOKEN_SELECT " + t.image);
     }
 
     |
 
-    t=<SELECT>
+    t = <TOKEN_CASE>
     {
-      System.out.println("SELECT " + t.image);
+      System.out.println("TOKEN_CASE " + t.image);
     }
 
     |
 
-    t=<CASE>
+    t = <TOKEN_DEFER>
     {
-      System.out.println("CASE " + t.image);
+      System.out.println("TOKEN_DEFER " + t.image);
     }
 
     |
 
-    t=<DEFER>
+    t = <TOKEN_GO>
     {
-      System.out.println("DEFER " + t.image);
+      System.out.println("TOKEN_GO " + t.image);
     }
 
     |
 
-    t=<GO>
+    t = <TOKEN_MAP>
     {
-      System.out.println("GO " + t.image);
+      System.out.println("TOKEN_MAP " + t.image);
     }
 
     |
 
-    t=<MAP>
+    t = <TOKEN_STRUCT>
     {
-      System.out.println("MAP " + t.image);
+      System.out.println("TOKEN_STRUCT " + t.image);
     }
 
     |
 
-    t=<STRUCT>
+    t = <TOKEN_CHAN>
     {
-      System.out.println("STRUCT " + t.image);
+      System.out.println("TOKEN_CHAN " + t.image);
     }
 
     |
 
-    t=<CHAN>
+    t = <TOKEN_ELSE>
     {
-      System.out.println("CHAN " + t.image);
+      System.out.println("TOKEN_ELSE " + t.image);
     }
 
     |
 
-    t=<ELSE>
+    t = <TOKEN_GOTO>
     {
-      System.out.println("ELSE " + t.image);
+      System.out.println("TOKEN_GOTO " + t.image);
     }
 
     |
 
-    t=<GOTO>
+    t = <TOKEN_PACKAGE>
     {
-      System.out.println("GOTO " + t.image);
+      System.out.println("TOKEN_PACKAGE " + t.image);
     }
 
     |
 
-    t=<PACKAGE>
+    t = <TOKEN_SWITCH>
     {
-      System.out.println("PACKAGE " + t.image);
+      System.out.println("TOKEN_SWITCH " + t.image);
     }
 
     |
 
-    t=<SWITCH>
+    t = <TOKEN_CONST>
     {
-      System.out.println("SWITCH " + t.image);
+      System.out.println("TOKEN_CONST " + t.image);
     }
 
     |
 
-    t=<CONST>
+    t = <TOKEN_FALLTHROUGH>
     {
-      System.out.println("CONST " + t.image);
+      System.out.println("TOKEN_FALLTHROUGH " + t.image);
     }
 
     |
 
-    t=<FALLTHROUGH>
+    t = <TOKEN_IF>
     {
-      System.out.println("FALLTHROUGH " + t.image);
+      System.out.println("TOKEN_IF " + t.image);
     }
 
     |
 
-    t=<IF>
+    t = <TOKEN_RANGE>
     {
-      System.out.println("IF " + t.image);
+      System.out.println("TOKEN_RANGE " + t.image);
     }
 
     |
 
-    t=<RANGE>
+    t = <TOKEN_TYPE>
     {
-      System.out.println("RANGE " + t.image);
+      System.out.println("TOKEN_TYPE " + t.image);
     }
 
     |
 
-    t=<TYPE>
+    t = <TOKEN_CONTINUE>
     {
-      System.out.println("TYPE " + t.image);
+      System.out.println("TOKEN_CONTINUE " + t.image);
     }
 
     |
 
-    t=<CONTINUE>
+    t = <TOKEN_FOR>
     {
-      System.out.println("CONTINUE " + t.image);
+      System.out.println("TOKEN_FOR " + t.image);
     }
 
     |
 
-    t=<FOR>
+    t = <TOKEN_IMPORT>
     {
-      System.out.println("FOR " + t.image);
+      System.out.println("TOKEN_IMPORT " + t.image);
     }
 
     |
 
-    t=<IMPORT>
+    t = <TOKEN_RETURN>
     {
-      System.out.println("IMPORT " + t.image);
+      System.out.println("TOKEN_RETURN " + t.image);
     }
 
     |
 
-    t=<RETURN>
+    t = <TOKEN_VAR>
     {
-      System.out.println("RETURN " + t.image);
+      System.out.println("TOKEN_VAR " + t.image);
     }
 
     |
 
-    t=<VAR>
+    t = <TOKEN_DIFFERENT>
     {
-      System.out.println("VAR " + t.image);
+      System.out.println("TOKEN_DIFFERENT " + t.image);
     }
 
     |
 
-    t=<ID>
+    t = <TOKEN_LESS_EQUAL>
     {
-      System.out.println("ID " + t.image);
+      System.out.println("TOKEN_LESS_EQUAL " + t.image);
     }
 
     |
 
-    t=<NUMERO>
+    t = <TOKEN_GREATER_EQUAL>
     {
-      System.out.println("NUMERO " + t.image);
+      System.out.println("TOKEN_GREATER_EQUAL " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_SHORT_DECLARATION>
+    {
+      System.out.println("TOKEN_SHORT_DECLARATION " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_ELLIPSIS>
+    {
+      System.out.println("TOKEN_ELLIPSIS " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_OPEN_PARENTHESIS>
+    {
+      System.out.println("TOKEN_OPEN_PARENTHESIS " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_CLOSE_PARENTHESIS>
+    {
+      System.out.println("TOKEN_CLOSE_PARENTHESIS " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_OPEN_BRACKET>
+    {
+      System.out.println("TOKEN_OPEN_BRACKET " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_CLOSE_BRACKET>
+    {
+      System.out.println("TOKEN_CLOSE_BRACKET " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_OPEN_CURLY_BRACKET>
+    {
+      System.out.println("TOKEN_OPEN_CURLY_BRACKET " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_CLOSE_CURLY_BRACKET>
+    {
+      System.out.println("TOKEN_CLOSE_CURLY_BRACKET " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_COMMA>
+    {
+      System.out.println("TOKEN_COMMA " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_SEMICOLON>
+    {
+      System.out.println("TOKEN_SEMICOLON " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_DOT>
+    {
+      System.out.println("TOKEN_DOT " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_COLON>
+    {
+      System.out.println("TOKEN_COLON " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_AND>
+    {
+      System.out.println("TOKEN_AND " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_OR>
+    {
+      System.out.println("TOKEN_OR " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_CHANNEL_DIRECTION>
+    {
+      System.out.println("TOKEN_CHANNEL_DIRECTION " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_PLUS_PLUS>
+    {
+      System.out.println("TOKEN_PLUS_PLUS " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_MINUS_MINUS>
+    {
+      System.out.println("TOKEN_MINUS_MINUS " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_BIT_AND_NOT_ASSIGN>
+    {
+      System.out.println("TOKEN_BIT_AND_NOT_ASSIGN " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_BIT_AND_ASSIGN>
+    {
+      System.out.println("TOKEN_BIT_AND_ASSIGN " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_BIT_OR_ASSIGN>
+    {
+      System.out.println("TOKEN_BIT_OR_ASSIGN " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_BIT_XOR_ASSIGN>
+    {
+      System.out.println("TOKEN_BIT_XOR_ASSIGN " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_LEFT_SHIFT_ASSIGN>
+    {
+      System.out.println("TOKEN_LEFT_SHIFT_ASSIGN " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_RIGHT_SHIFT_ASSIGN>
+    {
+      System.out.println("TOKEN_RIGHT_SHIFT_ASSIGN " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_PLUS_ASSIGN>
+    {
+      System.out.println("TOKEN_PLUS_ASSIGN " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_MINUS_ASSIGN>
+    {
+      System.out.println("TOKEN_MINUS_ASSIGN " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_MULTIPLY_ASSIGN>
+    {
+      System.out.println("TOKEN_MULTIPLY_ASSIGN " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_DIVIDE_ASSIGN>
+    {
+      System.out.println("TOKEN_DIVIDE_ASSIGN " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_REMAINDER_ASSIGN>
+    {
+      System.out.println("TOKEN_REMAINDER_ASSIGN " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_BIT_AND_NOT>
+    {
+      System.out.println("TOKEN_BIT_AND_NOT " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_BIT_AND>
+    {
+      System.out.println("TOKEN_BIT_AND " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_BIT_OR>
+    {
+      System.out.println("TOKEN_BIT_OR " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_BIT_XOR>
+    {
+      System.out.println("TOKEN_BIT_XOR " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_LEFT_SHIFT>
+    {
+      System.out.println("TOKEN_LEFT_SHIFT " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_RIGHT_SHIFT>
+    {
+      System.out.println("TOKEN_RIGHT_SHIFT " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_PLUS>
+    {
+      System.out.println("TOKEN_PLUS " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_MINUS>
+    {
+      System.out.println("TOKEN_MINUS " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_MULTIPLY>
+    {
+      System.out.println("TOKEN_MULTIPLY " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_DIVIDE>
+    {
+      System.out.println("TOKEN_DIVIDE " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_REMAINDER>
+    {
+      System.out.println("TOKEN_REMAINDER " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_EQUAL>
+    {
+      System.out.println("TOKEN_EQUAL " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_LESS>
+    {
+      System.out.println("TOKEN_LESS " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_GREATER>
+    {
+      System.out.println("TOKEN_GREATER " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_ASSIGN>
+    {
+      System.out.println("TOKEN_ASSIGN " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_NOT>
+    {
+      System.out.println("TOKEN_NOT " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_TILDE>
+    {
+      System.out.println("TOKEN_TILDE " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_DECIMAL_NUMBER>
+    {
+      System.out.println("TOKEN_DECIMAL_NUMBER " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_BINARY_NUMBER>
+    {
+      System.out.println("TOKEN_BINARY_NUMBER " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_OCTAL_NUMBER>
+    {
+      System.out.println("TOKEN_OCTAL_NUMBER " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_HEXADECIMAL_NUMBER>
+    {
+      System.out.println("TOKEN_HEXADECIMAL_NUMBER " + t.image);
+    }
+
+    |
+
+    t = <TOKEN_NIL>
+    {
+      System.out.println("TOKEN_NIL " + t.image);
     }
   )*
 
