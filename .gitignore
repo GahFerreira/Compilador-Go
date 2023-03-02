@@ -1,6 +1,3 @@
-*.ipt
-*.opt
-*.class
-*.java
-*.bat
-Compilador_Old.jj
+*
+!Compilador.jj
+!Gerador\ Lexico.py

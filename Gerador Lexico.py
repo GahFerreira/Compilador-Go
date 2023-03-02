@@ -1,388 +1,346 @@
 # Programa para gerar código em JavaCC de reconhecimento léxico da linguagem Go.
 
-nome_da_classe = "Compilador"
-prefixo_token = "TOKEN_"
+nome_da_classe = 'Compilador'
+prefixo_token = 'TOKEN_'
+posfixo_token = ''
+
+# Responde se o token é ou não final. 
+# Por ex.: digitos que comporão números não são tokens finais.
+def eh_token_final(nome_do_token):
+  if nome_do_token[0] == '#':
+    return False
+
+  return True
+
+
+# Adapta o nome do token para a regra usada.
+def adaptar(nome_do_token):
+  nome_final = None
+
+  # Para tokens que não sejam finais, como digitos que comporão números.
+  if eh_token_final(nome_do_token) == False:
+    nome_final = '#' + prefixo_token + nome_do_token[1:] + posfixo_token
+
+  else:
+    nome_final = prefixo_token + nome_do_token + posfixo_token
+
+  return nome_final
 
 # Tokens normais: seus nomes e valores são iguais.
-tipos = [ "ANY", "BOOL", "BYTE", "COMPARABLE", "COMPLEX64", "COMPLEX128", "ERROR",
-          "FLOAT32", "FLOAT64", "INT", "INT8", "INT16", "INT32", "INT64", "RUNE",
-          "STRING", "UINT", "UINT8", "UINT16", "UINT32", "UINT64", "UINTPTR" ]
+tipos = [ 'ANY', 'BOOL', 'BYTE', 'COMPARABLE', 'COMPLEX64', 'COMPLEX128', 'ERROR',
+          'FLOAT32', 'FLOAT64', 'INT', 'INT8', 'INT16', 'INT32', 'INT64', 'RUNE',
+          'STRING', 'UINT', 'UINT8', 'UINT16', 'UINT32', 'UINT64', 'UINTPTR' ]
 
-constantes = [ "TRUE", "FALSE", "IOTA" ]
+constantes = [ 'TRUE', 'FALSE', 'IOTA' ]
 
-funcoes = [ "APPEND", "CAP", "CLOSE", "COMPLEX", "COPY", "DELETE", "IMAG", "LEN",
-            "MAKE", "NEW", "PANIC", "PRINTLN", "PRINT", "REAL", "RECOVER" ]
+funcoes = [ 'APPEND', 'CAP', 'CLOSE', 'COMPLEX', 'COPY', 'DELETE', 'IMAG', 'LEN',
+            'MAKE', 'NEW', 'PANIC', 'PRINTLN', 'PRINT', 'REAL', 'RECOVER' ]
 
-palavras_chave = [ "BREAK", "DEFAULT", "FUNC", "INTERFACE", "SELECT", "CASE",
-                   "DEFER", "GO", "MAP", "STRUCT", "CHAN", "ELSE", "GOTO",
-                   "PACKAGE", "SWITCH", "CONST", "FALLTHROUGH", "IF", "RANGE",
-                   "TYPE", "CONTINUE", "FOR", "IMPORT", "RETURN", "VAR" ]
+palavras_chave = [ 'BREAK', 'DEFAULT', 'FUNC', 'INTERFACE', 'SELECT', 'CASE',
+                   'DEFER', 'GO', 'MAP', 'STRUCT', 'CHAN', 'ELSE', 'GOTO',
+                   'PACKAGE', 'SWITCH', 'CONST', 'FALLTHROUGH', 'IF', 'RANGE',
+                   'TYPE', 'CONTINUE', 'FOR', 'IMPORT', 'RETURN', 'VAR' ]
 
-valor_zero = [ "NIL" ]
+valor_zero = [ 'NIL' ]
 
 # Tokens especiais: seus nomes e valores são distintos.
 operadores = \
-[
-  {
-    "nome": "DIFFERENT",
-    "valor": "!="
-  },
-  {
-    "nome": "LESS_EQUAL",
-    "valor": "<="
-  },
-  {
-    "nome": "GREATER_EQUAL",
-    "valor": ">="
-  },
-  {
-    "nome": "SHORT_DECLARATION",
-    "valor": ":="
-  },
-  {
-    "nome": "ELLIPSIS",
-    "valor": "..."
-  },
-  {
-    "nome": "OPEN_PARENTHESIS",
-    "valor": "("
-  },
-  {
-    "nome": "CLOSE_PARENTHESIS",
-    "valor": ")"
-  },
-  {
-    "nome": "OPEN_BRACKET",
-    "valor": "["
-  },
-  {
-    "nome": "CLOSE_BRACKET",
-    "valor": "]"
-  },
-  {
-    "nome": "OPEN_CURLY_BRACKET",
-    "valor": "{"
-  },
-  {
-    "nome": "CLOSE_CURLY_BRACKET",
-    "valor": "}"
-  },
-  {
-    "nome": "COMMA",
-    "valor": ","
-  },
-  {
-    "nome": "SEMICOLON",
-    "valor": ";"
-  },
-  {
-    "nome": "DOT",
-    "valor": "."
-  },
-  {
-    "nome": "COLON",
-    "valor": ":"
-  },
-  {
-    "nome": "AND",
-    "valor": "&&"
-  },
-  {
-    "nome": "OR",
-    "valor": "||"
-  },
-  {
-    "nome": "CHANNEL_DIRECTION",
-    "valor": "<-"
-  },
-  {
-    "nome": "PLUS_PLUS",
-    "valor": "++"
-  },
-  {
-    "nome": "MINUS_MINUS",
-    "valor": "--"
-  },
-  {
-    "nome": "BIT_AND_NOT_ASSIGN",
-    "valor": "&^="
-  },
-  {
-    "nome": "BIT_AND_ASSIGN",
-    "valor": "&="
-  },
-  {
-    "nome": "BIT_OR_ASSIGN",
-    "valor": "|="
-  },
-  {
-    "nome": "BIT_XOR_ASSIGN",
-    "valor": "^="
-  },
-  {
-    "nome": "LEFT_SHIFT_ASSIGN",
-    "valor": "<<="
-  },
-  {
-    "nome": "RIGHT_SHIFT_ASSIGN",
-    "valor": ">>="
-  },
-  {
-    "nome": "PLUS_ASSIGN",
-    "valor": "+="
-  },
-  {
-    "nome": "MINUS_ASSIGN",
-    "valor": "-="
-  },
-  {
-    "nome": "MULTIPLY_ASSIGN",
-    "valor": "*="
-  },
-  {
-    "nome": "DIVIDE_ASSIGN",
-    "valor": "/="
-  },
-  {
-    "nome": "REMAINDER_ASSIGN",
-    "valor": "%="
-  },
-  {
-    "nome": "BIT_AND_NOT",
-    "valor": "&^"
-  },
-  {
-    "nome": "BIT_AND",
-    "valor": "&"
-  },
-  {
-    "nome": "BIT_OR",
-    "valor": "|"
-  },
-  {
-    "nome": "BIT_XOR",
-    "valor": "^"
-  },
-  {
-    "nome": "LEFT_SHIFT",
-    "valor": "<<"
-  },
-  {
-    "nome": "RIGHT_SHIFT",
-    "valor": ">>"
-  },
-  {
-    "nome": "PLUS",
-    "valor": "+"
-  },
-  {
-    "nome": "MINUS",
-    "valor": "-"
-  },
-  {
-    "nome": "MULTIPLY",
-    "valor": "*"
-  },
-  {
-    "nome": "DIVIDE",
-    "valor": "/"
-  },
-  {
-    "nome": "REMAINDER",
-    "valor": "%"
-  },
-  {
-    "nome": "EQUAL",
-    "valor": "=="
-  },
-  {
-    "nome": "LESS",
-    "valor": "<"
-  },
-  {
-    "nome": "GREATER",
-    "valor": ">"
-  },
-  {
-    "nome": "ASSIGN",
-    "valor": "="
-  },
-  {
-    "nome": "NOT",
-    "valor": "!"
-  },
-  {
-    "nome": "TILDE",
-    "valor": "~"
-  }
-]
+{
+  'DIFFERENT': '"!="',
+
+  'LESS_EQUAL': '"<="',
+
+  'GREATER_EQUAL': '">="',
+
+  'SHORT_DECLARATION': '":="',
+
+  'ELLIPSIS': '"..."',
+
+  'OPEN_PARENTHESIS': '"("',
+
+  'CLOSE_PARENTHESIS': '")"',
+
+  'OPEN_BRACKET': '"["',
+
+  'CLOSE_BRACKET': '"]"',
+
+  'OPEN_BRACE': '"{"',
+
+  'CLOSE_BRACE': '"}"',
+
+  'COMMA': '","',
+
+  'SEMICOLON': '";"',
+
+  'DOT': '"."',
+
+  'COLON': '":"',
+
+  'AND': '"&&"',
+
+  'OR': '"||"',
+
+  'CHANNEL_DIRECTION': '"<-"',
+
+  'PLUS_PLUS': '"++"',
+
+  'MINUS_MINUS': '"--"',
+
+  'BIT_AND_NOT_ASSIGN': '"&^="',
+
+  'BIT_AND_ASSIGN': '"&="',
+
+  'BIT_OR_ASSIGN': '"|="',
+
+  'BIT_XOR_ASSIGN': '"^="',
+
+  'LEFT_SHIFT_ASSIGN': '"<<="',
+
+  'RIGHT_SHIFT_ASSIGN': '">>="',
+
+  'PLUS_ASSIGN': '"+="',
+
+  'MINUS_ASSIGN': '"-="',
+
+  'MULTIPLY_ASSIGN': '"*="',
+
+  'DIVIDE_ASSIGN': '"/="',
+
+  'REMAINDER_ASSIGN': '"%="',
+
+  'BIT_AND_NOT': '"&^"',
+
+  'BIT_AND': '"&"',
+
+  'BIT_OR': '"|"',
+
+  'BIT_XOR': '"^"',
+
+  'LEFT_SHIFT': '"<<"',
+
+  'RIGHT_SHIFT': '">>"',
+
+  'PLUS': '"+"',
+
+  'MINUS': '"-"',
+
+  'MULTIPLY': '"*"',
+
+  'DIVIDE': '"/"',
+
+  'REMAINDER': '"%"',
+
+  'EQUAL': '"=="',
+
+  'LESS': '"<"',
+
+  'GREATER': '">"',
+
+  'ASSIGN': '"="',
+
+  'NOT': '"!"',
+
+  'TILDE': '"~"'
+}
 
 # Em Go, apesar de '_42' ser um identificador, '0x_42' é válido.
 numeros = \
-[
-  {
-    "nome": "DECIMAL_NUMBER",
-    "expressão regular": '"0" | (["1"-"9"] (("_")? ["0"-"9"])*)'
-  },
-  {
-    "nome": "BINARY_NUMBER",
-    "expressão regular": '"0" ("b" | "B") (("_")? ["0"-"1"])+'
-  },
-  {
-    "nome": "OCTAL_NUMBER",
-    "expressão regular": '"0" ("o" | "O")? (("_")? ["0"-"7"])+'
-  },
-  {
-    "nome": "HEXADECIMAL_NUMBER",
-    "expressão regular": '"0" ("x" | "X") ( ("_")? (["0"-"9"] | ["A"-"F"] | ["a"-"f"]) )+'
-  }
-]
+{
+  # Digitos Unitários
+  '#BINARY_DIGIT': '"0" | "1"',
+
+  '#OCTAL_DIGIT': '["0"-"7"]',
+
+  '#DECIMAL_DIGIT': '["0"-"9"]',
+
+  '#HEX_DIGIT': '["0"-"9", "A"-"F", "a"-"f"]',
+
+
+  # Digitos Combinados
+  '#BINARY_DIGITS': f'''< {adaptar('BINARY_DIGIT')} > ( ("_")? < {adaptar('BINARY_DIGIT')} > )*''',
+  
+  '#OCTAL_DIGITS': f'''< {adaptar('OCTAL_DIGIT')} > ( ("_")? < {adaptar('OCTAL_DIGIT')} > )*''',
+
+  '#DECIMAL_DIGITS': f'''< {adaptar('DECIMAL_DIGIT')} > ( ("_")? < {adaptar('DECIMAL_DIGIT')} > )*''',
+
+  '#HEX_DIGITS': f'''< {adaptar('HEX_DIGIT')} > ( ("_")? < {adaptar('HEX_DIGIT')} > )*''',
+
+
+  # Números Inteiros
+  'BINARY_LITERAL': f'''"0" ("b" | "B") ("_")? < {adaptar('BINARY_DIGITS')}  >''',
+
+  'OCTAL_LITERAL': f'''"0" ("o" | "O")? ("_")? < {adaptar('OCTAL_DIGITS')} >''',
+
+  'DECIMAL_LITERAL': f'''"0" | ( ["1"-"9"] ( ("_")? < {adaptar('DECIMAL_DIGITS')} > )? )''',
+
+  'HEX_LITERAL': f'''"0" ("x" | "X") ("_")? < {adaptar('HEX_DIGITS')} >''',
+
+  '#INT_LITERAL': 
+    f'''< {adaptar('BINARY_LITERAL')} > | < {adaptar('OCTAL_LITERAL')} > | ''' +
+    f'''< {adaptar('DECIMAL_LITERAL')} > | < {adaptar('HEX_LITERAL')} >''',
+
+
+  # Mantissas e Expoentes
+  '#DECIMAL_EXPONENT': f'''("e" | "E") ("+" | "-")? < {adaptar('DECIMAL_DIGITS')} >''',
+
+  '#HEX_MANTISSA': 
+    f'''( ("_")? < {adaptar('HEX_DIGITS')} > "." (< {adaptar('HEX_DIGITS')} >)? ) | ''' +
+    f'''( ("_")? < {adaptar('HEX_DIGITS')} > ) | ''' +
+    f'''( "." < {adaptar('HEX_DIGITS')} > )''',
+
+  '#HEX_EXPONENT': f'''("p" | "P") ("+" | "-")? < {adaptar('DECIMAL_DIGITS')} >''',
+
+
+  # Pontos Flutuantes
+  'DECIMAL_FLOAT_LITERAL': 
+    f'''( < {adaptar('DECIMAL_DIGITS')} > "." ( < {adaptar('DECIMAL_DIGITS')} > )? ( < {adaptar('DECIMAL_EXPONENT')} > )? ) | ''' +
+    f'''( < {adaptar('DECIMAL_DIGITS')} > < {adaptar('DECIMAL_EXPONENT')} > ) | ''' +
+    f'''( "." < {adaptar('DECIMAL_DIGITS')} > ( < {adaptar('DECIMAL_EXPONENT')} > )? )''',
+
+  'HEX_FLOAT_LITERAL': f'''"0" ("x" | "X") < {adaptar('HEX_MANTISSA')} > < {adaptar('HEX_EXPONENT')} >''',
+
+  '#FLOAT_LITERAL':
+    f'''< {adaptar('DECIMAL_FLOAT_LITERAL')} > | < {adaptar('HEX_FLOAT_LITERAL')} >''',
+
+
+  # Números Imaginários
+  'IMAGINARY_LITERAL': f'''(< {adaptar('DECIMAL_DIGITS')} > | < {adaptar('INT_LITERAL')} > | < {adaptar('FLOAT_LITERAL')} >) "i"'''
+}
+
+# Go usa caracteres unicode para identificadores.
+# Traduzi `unicode_letter` para `["A"-"Z", "a"-"z"]`.
+# Traduzi `unicode_digit` para `["0"-"9"]`.
+identificadores = \
+{
+  '#LETTER': '"_" | ["A"-"Z", "a"-"z"]',
+
+  'IDENTIFIER': 
+    f'''< {adaptar('LETTER')} > ( < {adaptar('LETTER')} > | < {adaptar('DECIMAL_DIGIT')} > )*'''
+}
 
 # Listando todas as listas de tokens
 listas_de_tokens_normais = \
-[
-  {
-    "nome": "Tipos",
-    "referência": tipos
-  },
-  {
-    "nome": "Constantes",
-    "referência": constantes
-  },
-  {
-    "nome": "Funções",
-    "referência": funcoes
-  },
-  {
-    "nome": "Palavras-Chave",
-    "referência": palavras_chave
-  },
-  {
-    "nome": "Valor Zero",
-    "referência": valor_zero
-  }
-]
+{
+  'Tipos': tipos,
+
+  'Constantes': constantes,
+
+  'Funções': funcoes,
+
+  'Palavras-Chave': palavras_chave,
+
+  'Valor Zero': valor_zero
+}
 
 listas_de_tokens_especiais = \
-[
-  {
-    "nome": "Operadores",
-    "referência": operadores
-  },
-  {
-    "nome": "Números",
-    "referência": numeros
-  }
-]
+{
+  'Operadores': operadores,
 
+  'Números': numeros,
+
+  'Identificadores': identificadores
+}
+
+# Início dos prints.
+
+ultimo_token_da_ultima_lista = \
+  list( (list(listas_de_tokens_especiais.values())[-1]).keys() )[-1]
 
 # Implementa a classe base.
-print("PARSER_BEGIN(" + nome_da_classe + ")",
-      "",
-      "public class " + nome_da_classe,
-      "{",
-      "  public static void main(String args[]) throws ParseException, TokenMgrError",
-      "  {",
-      "    " + nome_da_classe + " parser = new " + nome_da_classe + "(System.in);",
-      "",
-      "    parser.Inicio();",
-      "  }",
-      "}",
-      "",
-      "PARSER_END(" + nome_da_classe + ")",
-      "",
-      "",
-      sep = "\n")
+print(f'''\
+PARSER_BEGIN({nome_da_classe})
 
+public class {nome_da_classe}
+{{
+  public static void main(String args[]) throws ParseException, TokenMgrError
+  {{
+    {nome_da_classe} parser = new {nome_da_classe}(System.in);
+
+    parser.Inicio();
+  }}
+}}
+
+PARSER_END({nome_da_classe})
+
+''')
 
 # SKIP
-print("SKIP:",
-      "{",
-      "  /** Espaços em Branco */",
-      '  " "',
-      '| "\\t"',
-      '| "\\n"',
-      '| "\\r"',
-      "}",
-      "",
-      sep = "\n")
+print(f'''\
+SKIP:
+{{
+  /** Espaços em Branco */
+  " "
+| "\\t"
+| "\\n"
+| "\\r"
+}}
+''')
 
 # TOKEN
-print("TOKEN:",
-      "{",
-      sep = "\n")
+print('TOKEN:',
+      '{',
+      sep = '\n')
 
 ## Tokens Normais
-for lista in listas_de_tokens_normais[:-1]:
-  print("  /** " + lista["nome"] + " */")
+for nome_lista, lista in listas_de_tokens_normais.items():
+  print(f'  /** {nome_lista} */')
 
-  for token in lista["referência"]:
-    print("  < " + prefixo_token + token + ': "' + token.lower() + '" >',
-          "|",
-          sep = "\n")
+  for token in lista:
+    print(f'  < {adaptar(token)}: "{token.lower()}" >',
+          f'|',
+          sep = '\n')
 
 ## Tokens Especiais
-for lista in listas_de_tokens_especiais:
-  print("  /** " + lista["nome"] + " */")
+for nome_lista, lista in listas_de_tokens_especiais.items():
+  print(f'  /** {nome_lista} */')
 
-  for token in lista["referência"]:
-    if "valor" in token:
-      print("  < " + prefixo_token + token["nome"] + ': "' + token["valor"] + '" >',
-            "|",
-            sep = "\n")
-
-    else:
-      print("  < " + prefixo_token + token["nome"] + ": " + token["expressão regular"] + " >",
-            "|",
-            sep = "\n")
-
-
-## Última Lista
-print("  /** Valor Zero */")
-print("  < " + prefixo_token + valor_zero[0] + ': "' + valor_zero[0] + '" >', sep = "\n")
-
-print("}\n\n")
+  for nome_token, valor_token in lista.items():
+      print(f'  < {adaptar(nome_token)}: {valor_token} >',
+            f'|' if nome_token != ultimo_token_da_ultima_lista else '}\n\n',
+            sep = '\n')
 
 
 # Implementação da função de início.
-print("void Inicio():",
-      "{",
-      "  Token t;",
-      "}",
-      "{",
-      "  (",
-      sep = "\n")
+print(f'''\
+void Inicio():
+{{
+  Token t;
+}}
+{{
+  (\
+''')
 
-for lista in listas_de_tokens_normais[:-1]:
-  for token in lista["referência"]:
-    print("    t = <" + prefixo_token + token + ">",
-          "    {",
-          '      System.out.println("' + prefixo_token + token + ' " + t.image);',
-          "    }",
-          "",
-          "    |",
-          "",
-          sep = "\n")
+for nome_lista, lista in listas_de_tokens_normais.items():
+  for token in lista:
+    print(f'    t = < {adaptar(token)} >',
+          f'    {{',
+          f'      System.out.println("{adaptar(token)} " + t.image);',
+          f'    }}',
+          f'',
+          f'    |',
+          f'',
+          sep = '\n')
 
-for lista in listas_de_tokens_especiais:
-  for token in lista["referência"]:
-    print("    t = <" + prefixo_token + token["nome"] + ">",
-          "    {",
-          '      System.out.println("' + prefixo_token + token["nome"] + ' " + t.image);',
-          "    }",
-          "",
-          "    |",
-          "",
-          sep = "\n")
+for nome_lista, lista in listas_de_tokens_especiais.items():
+  for nome_token, valor_token in lista.items():
+    if eh_token_final(nome_token) == False:
+      continue
 
-print("    t = <" + prefixo_token + valor_zero[0] + ">",
-      "    {",
-      '      System.out.println("' + prefixo_token + valor_zero[0] + ' " + t.image);',
-      "    }",
-      sep = "\n")
+    print(f'    t = < {adaptar(nome_token)} >',
+          f'    {{',
+          f'      System.out.println("{adaptar(nome_token)} " + t.image);',
+          f'    }}',
+          sep = '\n')
 
-print("  )*",
-      "",
-      "  <EOF>",
-      "}",
-      sep = "\n")
+    if nome_token != ultimo_token_da_ultima_lista:
+      print(f'',
+            f'    |',
+            f'',
+            sep = '\n')
+
+print(f'''\
+  )*
+
+  < EOF >
+}}\
+''')
