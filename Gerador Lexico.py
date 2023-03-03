@@ -44,6 +44,13 @@ palavras_chave = [ 'BREAK', 'DEFAULT', 'FUNC', 'INTERFACE', 'SELECT', 'CASE',
 valor_zero = [ 'NIL' ]
 
 # Tokens especiais: seus nomes e valores são distintos.
+comentarios = \
+{
+  'LINE_COMMENT': '"//"',
+  'OPEN_GENERAL_COMMENT': '"/*"',
+  'CLOSE_GENERAL_COMMENT': '"*/"'
+}
+
 operadores = \
 {
   'DIFFERENT': '"!="',
@@ -204,7 +211,10 @@ numeros = \
 
 
   # Números Imaginários
-  'IMAGINARY_LITERAL': f'''(< {adaptar('DECIMAL_DIGITS')} > | < {adaptar('INT_LITERAL')} > | < {adaptar('FLOAT_LITERAL')} >) "i"'''
+  'IMAGINARY_LITERAL': 
+    f'''(< {adaptar('DECIMAL_DIGITS')} > | ''' +
+    f'''< {adaptar('INT_LITERAL')} > | < {adaptar('FLOAT_LITERAL')} >) ''' +
+    f'''"i"'''
 }
 
 # Go usa caracteres unicode para identificadores.
@@ -216,6 +226,31 @@ identificadores = \
 
   'IDENTIFIER': 
     f'''< {adaptar('LETTER')} > ( < {adaptar('LETTER')} > | < {adaptar('DECIMAL_DIGIT')} > )*'''
+}
+
+runas = \
+{
+  # {3} significa 3 digitos octais.
+  '#OCTAL_BYTE_VALUE': f'''"\\\\" (< {adaptar('OCTAL_DIGIT')} >){{3}}''',
+  
+  '#HEX_BYTE_VALUE': f'''"\\\\" "x" (< {adaptar('HEX_DIGIT')} >){{2}}''',
+
+  '#LITTLE_U_VALUE': f'''"\\\\" "u" (< {adaptar('HEX_DIGIT')} >){{4}}''',
+
+  '#BIG_U_VALUE': f'''"\\\\" "U" (< {adaptar('HEX_DIGIT')} >){{8}}''',
+
+  '#ESCAPED_CHAR': f'''"\\\\" ( "a" | "b" | "f" | "n" | "r" | "t" | "v" | "\\\\" | "'" | "\\"" )''',
+
+  '#BYTE_VALUE': f'''< {adaptar('OCTAL_BYTE_VALUE')} > | < {adaptar('HEX_BYTE_VALUE')} >''',
+
+  # Deveria ser #UNICODE_VALUE, mas como usa #LETTER, tornei #LETTER_VALUE.
+  '#LETTER_VALUE': 
+    f'''< {adaptar('LETTER')} > | ''' +
+    f'''< {adaptar('LITTLE_U_VALUE')} > | ''' +
+    f'''< {adaptar('BIG_U_VALUE')} > | ''' +
+    f'''< {adaptar('ESCAPED_CHAR')} >''',
+
+  'RUNE_LITERAL': f'''"'" ( < {adaptar('LETTER_VALUE')} > | < {adaptar('BYTE_VALUE')} > ) "'"'''
 }
 
 # Listando todas as listas de tokens
@@ -234,11 +269,15 @@ listas_de_tokens_normais = \
 
 listas_de_tokens_especiais = \
 {
+  'Comentários': comentarios,
+
   'Operadores': operadores,
 
   'Números': numeros,
 
-  'Identificadores': identificadores
+  'Identificadores': identificadores,
+
+  'Runas': runas
 }
 
 # Início dos prints.

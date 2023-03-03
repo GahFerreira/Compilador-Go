@@ -161,6 +161,13 @@ TOKEN:
   /** Valor Zero */
   < TOKEN_NIL: "nil" >
 |
+  /** Comentários */
+  < TOKEN_LINE_COMMENT: "//" >
+|
+  < TOKEN_OPEN_GENERAL_COMMENT: "/*" >
+|
+  < TOKEN_CLOSE_GENERAL_COMMENT: "*/" >
+|
   /** Operadores */
   < TOKEN_DIFFERENT: "!=" >
 |
@@ -303,6 +310,23 @@ TOKEN:
   < #TOKEN_LETTER: "_" | ["A"-"Z", "a"-"z"] >
 |
   < TOKEN_IDENTIFIER: < TOKEN_LETTER > ( < TOKEN_LETTER > | < TOKEN_DECIMAL_DIGIT > )* >
+|
+  /** Runas */
+  < #TOKEN_OCTAL_BYTE_VALUE: "\\" (< TOKEN_OCTAL_DIGIT >){3} >
+|
+  < #TOKEN_HEX_BYTE_VALUE: "\\" "x" (< TOKEN_HEX_DIGIT >){2} >
+|
+  < #TOKEN_LITTLE_U_VALUE: "\\" "u" (< TOKEN_HEX_DIGIT >){4} >
+|
+  < #TOKEN_BIG_U_VALUE: "\\" "U" (< TOKEN_HEX_DIGIT >){8} >
+|
+  < #TOKEN_ESCAPED_CHAR: "\\" ( "a" | "b" | "f" | "n" | "r" | "t" | "v" | "\\" | "'" | "\"" ) >
+|
+  < #TOKEN_BYTE_VALUE: < TOKEN_OCTAL_BYTE_VALUE > | < TOKEN_HEX_BYTE_VALUE > >
+|
+  < #TOKEN_LETTER_VALUE: < TOKEN_LETTER > | < TOKEN_LITTLE_U_VALUE > | < TOKEN_BIG_U_VALUE > | < TOKEN_ESCAPED_CHAR > >
+|
+  < TOKEN_RUNE_LITERAL: "'" ( < TOKEN_LETTER_VALUE > | < TOKEN_BYTE_VALUE > ) "'" >
 }
 
 
@@ -774,6 +798,27 @@ void Inicio():
 
     |
 
+    t = < TOKEN_LINE_COMMENT >
+    {
+      System.out.println("TOKEN_LINE_COMMENT " + t.image);
+    }
+
+    |
+
+    t = < TOKEN_OPEN_GENERAL_COMMENT >
+    {
+      System.out.println("TOKEN_OPEN_GENERAL_COMMENT " + t.image);
+    }
+
+    |
+
+    t = < TOKEN_CLOSE_GENERAL_COMMENT >
+    {
+      System.out.println("TOKEN_CLOSE_GENERAL_COMMENT " + t.image);
+    }
+
+    |
+
     t = < TOKEN_DIFFERENT >
     {
       System.out.println("TOKEN_DIFFERENT " + t.image);
@@ -1162,6 +1207,13 @@ void Inicio():
     t = < TOKEN_IDENTIFIER >
     {
       System.out.println("TOKEN_IDENTIFIER " + t.image);
+    }
+
+    |
+
+    t = < TOKEN_RUNE_LITERAL >
+    {
+      System.out.println("TOKEN_RUNE_LITERAL " + t.image);
     }
   )*
 
