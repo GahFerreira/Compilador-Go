@@ -1,3 +1,5 @@
 *
 !Compilador.jj
 !Gerador\ Lexico.py
+!*.java
+!*.class
