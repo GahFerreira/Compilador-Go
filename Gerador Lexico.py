@@ -12,7 +12,7 @@ def eh_token_final(nome_do_token):
 
   return True
 
-# Adapta o nome do token para a regra usada.
+# Adapta o nome do token, usando prefixos e sufixos pré-definidos.
 def adaptar(nome_do_token):
   nome_final = None
 
@@ -328,9 +328,19 @@ estados_lexicos = \
 {
   'IN_GENERAL_COMMENT': 
   {
+    # 'TOKEN' será printado dentro de `< IN_GENERAL_COMMENT > TOKEN:`
+    # É uma tupla de dois elementos: 
+    #   Elemento 1: nome do token a ser gerado
+    #   Elemento 2: caractere que ao ser lido neste estado gerará o token
     'TOKEN': ('GENERAL_COMMENT', '"*/"'),
+
+    # 'MORE' será printado dentro de `< IN_GENERAL_COMMENT > MORE:`
+    # É uma lista dos caracteres que serão ignorados ao ser lidos neste estado, mas que comporão o token final
     'MORE': ['< ~[] >'],
-    'IN_MORE': '"/*"'
+
+    # 'IN_DEFAULT_MORE' será printado em `MORE:`
+    # É o caractere que ao ser lido, mudará do estado DEFAULT para IN_GENERAL_COMMENT
+    'IN_DEFAULT_MORE': '"/*"'
   },
 
   'IN_RAW_STRING_LITERAL':
@@ -338,7 +348,7 @@ estados_lexicos = \
     'TOKEN': ('RAW_STRING_LITERAL', '"`"'),
     'MORE': [f'''< {adaptar('IN_RAW_STRING_LITERAL_UNICODE_CHAR')}: < {adaptar('UNICODE_CHAR')} > >''', 
              f'''< {adaptar('IN_RAW_STRING_LITERAL_NEWLINE')}: < {adaptar('NEWLINE')} > >'''],
-    'IN_MORE': '"`"'
+    'IN_DEFAULT_MORE': '"`"'
   },
 
   'IN_INTERPRETED_STRING_LITERAL':
@@ -347,7 +357,7 @@ estados_lexicos = \
     'MORE': ['"\\\\\\""',
              f'''< {adaptar('IN_INTERPRETED_STRING_LITERAL_UNICODE_VALUE')}: < {adaptar('UNICODE_VALUE')} > >''',
              f'''< {adaptar('IN_INTERPRETED_STRING_LITERAL_BYTE_VALUE')}: < {adaptar('BYTE_VALUE')} > >'''],
-    'IN_MORE': '"\\""'
+    'IN_DEFAULT_MORE': '"\\""'
   }
 }
 
@@ -374,6 +384,7 @@ PARSER_END({nome_da_classe})
 
 ''')
 
+# Comentário descrevendo como funcionam os estados léxicos.
 print('''\
 /*
   Por padrão, JavaCC analisa o código no estado DEFAULT.
@@ -417,7 +428,7 @@ print ('MORE:',
        sep = '\n')
 
 for nome_estado, dados_estado in estados_lexicos.items():
-  print(f'''  {dados_estado['IN_MORE']}: {nome_estado}''',
+  print(f'''  {dados_estado['IN_DEFAULT_MORE']}: {nome_estado}''',
         '|' if nome_estado != list(estados_lexicos.keys())[-1] else '}\n\n',
         sep = '\n')
 
@@ -466,7 +477,7 @@ void Inicio():
   (\
 ''')
 
-for nome_lista, lista in listas_de_tokens_normais.items():
+for lista in listas_de_tokens_normais.values():
   for token in lista:
     print(f'    t = < {adaptar(token)} >',
           f'    {{',
@@ -487,7 +498,7 @@ for dados_estado in estados_lexicos.values():
         f'''''',
         sep = '\n')
 
-for nome_lista, lista in listas_de_tokens_especiais.items():
+for lista in listas_de_tokens_especiais.values():
   for nome_token, valor_token in lista.items():
     if eh_token_final(nome_token) == False:
       continue
