@@ -12,7 +12,6 @@ def eh_token_final(nome_do_token):
 
   return True
 
-
 # Adapta o nome do token para a regra usada.
 def adaptar(nome_do_token):
   nome_final = None
@@ -46,9 +45,46 @@ valor_zero = [ 'NIL' ]
 # Tokens especiais: seus nomes e valores são distintos.
 comentarios = \
 {
-  'LINE_COMMENT': '"//"',
-  'OPEN_GENERAL_COMMENT': '"/*"',
-  'CLOSE_GENERAL_COMMENT': '"*/"'
+  'LINE_COMMENT': f'''"//" (~["\\n", "\\r"])*'''
+
+  # Comentários multilinha são realizados através do estado léxico IN_GENERAL_COMMENT
+}
+
+espacos_brancos = \
+{
+  'SPACE': '" "',
+  'HORIZONTAL_TAB': '"\\t"',
+  'CARRIAGE_RETURN': '"\\r"',
+  'NEWLINE': '"\\n"'
+}
+
+# Esses tokens (não finais) são referenciados em outros tokens.
+unicode = \
+{
+  '#UNICODE_CHAR': '~["\\n"]',
+
+  # Tecnicamente, teria que aceitar todas as letras do Unicode.
+  # Neste momento, por simplicidade, aceita apenas as letras latinas sem acento.
+  '#UNICODE_LETTER': '["A"-"Z", "a"-"z"]',
+
+  # Tecnicamente, teria que aceitar todos os digitos do Unicode.
+  # Neste momento, por simplicidade, aceita apenas digitos de 0 a 9.
+  '#UNICODE_DIGIT': '["0"-"9"]'
+}
+
+# Esses tokens (não finais) são referenciados em outros tokens.
+letras_e_digitos = \
+{
+  '#LETTER': f'''"_" | < {adaptar('UNICODE_LETTER')} >''',
+
+  # Digitos Unitários
+  '#BINARY_DIGIT': '"0" | "1"',
+
+  '#OCTAL_DIGIT': '["0"-"7"]',
+
+  '#DECIMAL_DIGIT': '["0"-"9"]',
+
+  '#HEX_DIGIT': '["0"-"9", "A"-"F", "a"-"f"]',
 }
 
 operadores = \
@@ -150,19 +186,9 @@ operadores = \
   'TILDE': '"~"'
 }
 
-# Em Go, apesar de '_42' ser um identificador, '0x_42' é válido.
+# Em Go, apesar de '_42' ser um identificador, '0x_42' é um número literal válido.
 numeros = \
 {
-  # Digitos Unitários
-  '#BINARY_DIGIT': '"0" | "1"',
-
-  '#OCTAL_DIGIT': '["0"-"7"]',
-
-  '#DECIMAL_DIGIT': '["0"-"9"]',
-
-  '#HEX_DIGIT': '["0"-"9", "A"-"F", "a"-"f"]',
-
-
   # Digitos Combinados
   '#BINARY_DIGITS': f'''< {adaptar('BINARY_DIGIT')} > ( ("_")? < {adaptar('BINARY_DIGIT')} > )*''',
   
@@ -217,17 +243,6 @@ numeros = \
     f'''"i"'''
 }
 
-# Go usa caracteres unicode para identificadores.
-# Traduzi `unicode_letter` para `["A"-"Z", "a"-"z"]`.
-# Traduzi `unicode_digit` para `["0"-"9"]`.
-identificadores = \
-{
-  '#LETTER': '"_" | ["A"-"Z", "a"-"z"]',
-
-  'IDENTIFIER': 
-    f'''< {adaptar('LETTER')} > ( < {adaptar('LETTER')} > | < {adaptar('DECIMAL_DIGIT')} > )*'''
-}
-
 runas = \
 {
   # {3} significa 3 digitos octais.
@@ -243,14 +258,25 @@ runas = \
 
   '#BYTE_VALUE': f'''< {adaptar('OCTAL_BYTE_VALUE')} > | < {adaptar('HEX_BYTE_VALUE')} >''',
 
-  # Deveria ser #UNICODE_VALUE, mas como usa #LETTER, tornei #LETTER_VALUE.
-  '#LETTER_VALUE': 
-    f'''< {adaptar('LETTER')} > | ''' +
+  '#UNICODE_VALUE': 
+    f'''< {adaptar('UNICODE_CHAR')} > | ''' +
     f'''< {adaptar('LITTLE_U_VALUE')} > | ''' +
     f'''< {adaptar('BIG_U_VALUE')} > | ''' +
     f'''< {adaptar('ESCAPED_CHAR')} >''',
 
-  'RUNE_LITERAL': f'''"'" ( < {adaptar('LETTER_VALUE')} > | < {adaptar('BYTE_VALUE')} > ) "'"'''
+  'RUNE_LITERAL': f'''"'" ( < {adaptar('UNICODE_VALUE')} > | < {adaptar('BYTE_VALUE')} > ) "'"'''
+}
+
+strings = \
+{
+  '#STRING_LITERAL': 
+    f'''< {adaptar('RAW_STRING_LITERAL')} > | < {adaptar('INTERPRETED_STRING_LITERAL')} >'''
+}
+
+identificadores = \
+{
+  'IDENTIFIER': 
+    f'''< {adaptar('LETTER')} > ( < {adaptar('LETTER')} > | < {adaptar('UNICODE_DIGIT')} > )*'''
 }
 
 # Listando todas as listas de tokens
@@ -269,15 +295,60 @@ listas_de_tokens_normais = \
 
 listas_de_tokens_especiais = \
 {
+  'Unicode': unicode,
+
+  'Letras & Digitos': letras_e_digitos,
+
   'Comentários': comentarios,
 
   'Operadores': operadores,
 
   'Números': numeros,
 
-  'Identificadores': identificadores,
+  'Runas': runas,
 
-  'Runas': runas
+  'Strings': strings,
+
+  'Identificadores': identificadores
+}
+
+'''
+  Por padrão, JavaCC analisa o código no estado DEFAULT.
+  As regras de TOKEN, SKIP e MORE são definidas somente para este estado.
+  Quando dentro de `MORE: `, temos uma regra, como `"/*": IN_GENERAL_COMMENT`, isso significa que,
+quando o JAVACC ler `/*` do código, ele irá para o estado `IN_GENERAL_COMMENT`.
+  Dessa forma, precisamos definir as regras que serão válidas neste estado. Para este exemplo, as
+regras são definidas dentro de: `< IN_GENERAL_COMMENT > TOKEN:` e `< IN_GENERAL_COMMENT > MORE:`.
+  `< IN_GENERAL_COMMENT > TOKEN:` nos diz que quando um caractere lido casar com alguma regra
+definida lá dentro, haverá uma criação de um token, e a transição de volta ao estado DEFAULT.
+  `< IN_GENERAL_COMMENT > MORE:` nos diz que quando um caractere lido casar com alguma regra
+definida lá dentro, ele será pulado, mas fará parte do próximo token a ser criado.
+'''
+estados_lexicos = \
+{
+  'IN_GENERAL_COMMENT': 
+  {
+    'TOKEN': ('GENERAL_COMMENT', '"*/"'),
+    'MORE': ['< ~[] >'],
+    'IN_MORE': '"/*"'
+  },
+
+  'IN_RAW_STRING_LITERAL':
+  {
+    'TOKEN': ('RAW_STRING_LITERAL', '"`"'),
+    'MORE': [f'''< {adaptar('IN_RAW_STRING_LITERAL_UNICODE_CHAR')}: < {adaptar('UNICODE_CHAR')} > >''', 
+             f'''< {adaptar('IN_RAW_STRING_LITERAL_NEWLINE')}: < {adaptar('NEWLINE')} > >'''],
+    'IN_MORE': '"`"'
+  },
+
+  'IN_INTERPRETED_STRING_LITERAL':
+  {
+    'TOKEN': ('INTERPRETED_STRING_LITERAL', '"\\""'),
+    'MORE': ['"\\\\\\""',
+             f'''< {adaptar('IN_INTERPRETED_STRING_LITERAL_UNICODE_VALUE')}: < {adaptar('UNICODE_VALUE')} > >''',
+             f'''< {adaptar('IN_INTERPRETED_STRING_LITERAL_BYTE_VALUE')}: < {adaptar('BYTE_VALUE')} > >'''],
+    'IN_MORE': '"\\""'
+  }
 }
 
 # Início dos prints.
@@ -303,17 +374,63 @@ PARSER_END({nome_da_classe})
 
 ''')
 
-# SKIP
-print(f'''\
-SKIP:
-{{
-  /** Espaços em Branco */
-  " "
-| "\\t"
-| "\\n"
-| "\\r"
-}}
+print('''\
+/*
+  Por padrão, JavaCC analisa o código no estado DEFAULT.
+  As regras de TOKEN, SKIP e MORE são definidas somente para este estado.
+  Quando dentro de `MORE: `, temos uma regra, como `"/*": IN_GENERAL_COMMENT`, isso significa que,
+quando o JAVACC ler `/*` do código, ele irá para o estado `IN_GENERAL_COMMENT`.
+  Dessa forma, precisamos definir as regras que serão válidas neste estado. Para este exemplo, as
+regras são definidas dentro de: `< IN_GENERAL_COMMENT > TOKEN:` e `< IN_GENERAL_COMMENT > MORE:`.
+  `< IN_GENERAL_COMMENT > TOKEN:` nos diz que quando um caractere lido casar com alguma regra
+definida lá dentro, haverá uma criação de um token, e a transição de volta ao estado DEFAULT.
+  `< IN_GENERAL_COMMENT > MORE:` nos diz que quando um caractere lido casar com alguma regra
+definida lá dentro, ele será pulado, mas fará parte do próximo token a ser criado.
+*/\
 ''')
+
+for nome_estado, dados_estado in estados_lexicos.items():
+  # Printando '< ESTADO > TOKEN:'
+  print(f'''< {nome_estado} > TOKEN:''',
+        f'''{{''',
+        f'''  < {adaptar(dados_estado['TOKEN'][0])}: {dados_estado['TOKEN'][1]} > : DEFAULT''',
+        f'''}}''',
+        f'''''',
+        sep = '\n')
+
+  # Printando '< ESTADO > MORE:'
+  print(f'''< {nome_estado} > MORE:''',
+        f'''{{''',
+        f'''  {dados_estado['MORE'][0]}''',
+        sep = '\n')
+
+  for regra in dados_estado['MORE'][1:]:
+    print(f'|',
+          f'  {regra}',
+          sep = '\n')
+
+  print('}\n')
+
+# MORE
+print ('MORE:',
+       '{',
+       sep = '\n')
+
+for nome_estado, dados_estado in estados_lexicos.items():
+  print(f'''  {dados_estado['IN_MORE']}: {nome_estado}''',
+        '|' if nome_estado != list(estados_lexicos.keys())[-1] else '}\n\n',
+        sep = '\n')
+
+# SKIP
+print('SKIP:',
+      '{',
+      '  /** Espaços em Branco */',
+      sep = '\n')
+
+for nome_token, valor_token in espacos_brancos.items():
+  print(f'  < {adaptar(nome_token)}: {valor_token} >',
+        f'|' if nome_token != list(espacos_brancos.keys())[-1] else '}\n\n',
+        sep = '\n')
 
 # TOKEN
 print('TOKEN:',
@@ -359,6 +476,16 @@ for nome_lista, lista in listas_de_tokens_normais.items():
           f'    |',
           f'',
           sep = '\n')
+
+for dados_estado in estados_lexicos.values():
+  print(f'''    t = < {adaptar(dados_estado['TOKEN'][0])} >''',
+        f'''    {{''',
+        f'''      System.out.println("{adaptar(dados_estado['TOKEN'][0])} " + t.image);''',
+        f'''    }}''',
+        f'''''',
+        f'''    |''',
+        f'''''',
+        sep = '\n')
 
 for nome_lista, lista in listas_de_tokens_especiais.items():
   for nome_token, valor_token in lista.items():
