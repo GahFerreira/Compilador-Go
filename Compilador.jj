@@ -1,4 +1,4 @@
-ï¿½ï¿½ï¿½ï¿½PARSER_BEGIN(Compilador)
+PARSER_BEGIN(Compilador)
 
 public class Compilador
 {
@@ -14,16 +14,16 @@ PARSER_END(Compilador)
 
 
 /*
-  Por padrï¿½o, JavaCC analisa o cï¿½digo no estado DEFAULT.
-  As regras de TOKEN, SKIP e MORE sï¿½o definidas somente para este estado.
+  Por padrão, JavaCC analisa o código no estado DEFAULT.
+  As regras de TOKEN, SKIP e MORE são definidas somente para este estado.
   Quando dentro de `MORE: `, temos uma regra, como `"/*": IN_GENERAL_COMMENT`, isso significa que,
-quando o JAVACC ler `/*` do cï¿½digo, ele irï¿½ para o estado `IN_GENERAL_COMMENT`.
-  Dessa forma, precisamos definir as regras que serï¿½o vï¿½lidas neste estado. Para este exemplo, as
-regras sï¿½o definidas dentro de: `< IN_GENERAL_COMMENT > TOKEN:` e `< IN_GENERAL_COMMENT > MORE:`.
+quando o JAVACC ler `/*` do código, ele irá para o estado `IN_GENERAL_COMMENT`.
+  Dessa forma, precisamos definir as regras que serão válidas neste estado. Para este exemplo, as
+regras são definidas dentro de: `< IN_GENERAL_COMMENT > TOKEN:` e `< IN_GENERAL_COMMENT > MORE:`.
   `< IN_GENERAL_COMMENT > TOKEN:` nos diz que quando um caractere lido casar com alguma regra
-definida lï¿½ dentro, haverï¿½ uma criaï¿½ï¿½o de um token, e a transiï¿½ï¿½o de volta ao estado DEFAULT.
+definida lá dentro, haverá uma criação de um token, e a transição de volta ao estado DEFAULT.
   `< IN_GENERAL_COMMENT > MORE:` nos diz que quando um caractere lido casar com alguma regra
-definida lï¿½ dentro, ele serï¿½ pulado, mas farï¿½ parte do prï¿½ximo token a ser criado.
+definida lá dentro, ele será pulado, mas fará parte do próximo token a ser criado.
 */
 < IN_GENERAL_COMMENT > TOKEN:
 {
@@ -73,7 +73,7 @@ MORE:
 
 SKIP:
 {
-  /** Espaï¿½os em Branco */
+  /** Espaços em Branco */
   < TOKEN_SPACE: " " >
 |
   < TOKEN_HORIZONTAL_TAB: "\t" >
@@ -138,7 +138,7 @@ TOKEN:
 |
   < TOKEN_IOTA: "iota" >
 |
-  /** Funï¿½ï¿½es */
+  /** Funções */
   < TOKEN_APPEND: "append" >
 |
   < TOKEN_CAP: "cap" >
@@ -241,8 +241,8 @@ TOKEN:
 |
   < #TOKEN_HEX_DIGIT: ["0"-"9", "A"-"F", "a"-"f"] >
 |
-  /** Comentï¿½rios */
-  < TOKEN_LINE_COMMENT: "//"~["\n", "\r"])* >
+  /** Comentários */
+  < TOKEN_LINE_COMMENT: "//" (~["\n", "\r"])* >
 |
   /** Operadores */
   < TOKEN_DIFFERENT: "!=" >
@@ -341,61 +341,61 @@ TOKEN:
 |
   < TOKEN_TILDE: "~" >
 |
-  /** Nï¿½meros */
-  < #TOKEN_BINARY_DIGITS: < TOKEN_BINARY_DIGIT > ("_")? < TOKEN_BINARY_DIGIT > )* >
+  /** Números */
+  < #TOKEN_BINARY_DIGITS: < TOKEN_BINARY_DIGIT > ( ("_")? < TOKEN_BINARY_DIGIT > )* >
 |
-  < #TOKEN_OCTAL_DIGITS: < TOKEN_OCTAL_DIGIT > ("_")? < TOKEN_OCTAL_DIGIT >* >
+  < #TOKEN_OCTAL_DIGITS: < TOKEN_OCTAL_DIGIT > ( ("_")? < TOKEN_OCTAL_DIGIT > )* >
 |
-  < #TOKEN_DECIMAL_DIGITS: < TOKEN_DECIMAL_DIGIT >"_")? < TOKEN_DECIMAL_DIGIT > )* >
+  < #TOKEN_DECIMAL_DIGITS: < TOKEN_DECIMAL_DIGIT > ( ("_")? < TOKEN_DECIMAL_DIGIT > )* >
 |
-  < #TOKEN_HEX_DIGITS: < TOKEN_HEX_DIGIT > ("_")? < TOKEN_HEX_DIGIT >* >
+  < #TOKEN_HEX_DIGITS: < TOKEN_HEX_DIGIT > ( ("_")? < TOKEN_HEX_DIGIT > )* >
 |
-  < TOKEN_BINARY_LITERAL: "0" ("b" | "B"("_")? < TOKEN_BINARY_DIGITS  > >
+  < TOKEN_BINARY_LITERAL: "0" ("b" | "B") ("_")? < TOKEN_BINARY_DIGITS  > >
 |
-  < TOKEN_OCTAL_LITERAL: "0""o" | "O")? ("_")? < TOKEN_OCTAL_DIGITS > >
+  < TOKEN_OCTAL_LITERAL: "0" ("o" | "O")? ("_")? < TOKEN_OCTAL_DIGITS > >
 |
-  < TOKEN_DECIMAL_LITERAL: "0" | ["1"-"9"]"_")? < TOKEN_DECIMAL_DIGITS >? >
+  < TOKEN_DECIMAL_LITERAL: "0" | ( ["1"-"9"] ( ("_")? < TOKEN_DECIMAL_DIGITS > )? ) >
 |
-  < TOKEN_HEX_LITERAL: "0""x" | "X")"_")? < TOKEN_HEX_DIGITS > >
+  < TOKEN_HEX_LITERAL: "0" ("x" | "X") ("_")? < TOKEN_HEX_DIGITS > >
 |
   < #TOKEN_INT_LITERAL: < TOKEN_BINARY_LITERAL > | < TOKEN_OCTAL_LITERAL > | < TOKEN_DECIMAL_LITERAL > | < TOKEN_HEX_LITERAL > >
 |
-  < #TOKEN_DECIMAL_EXPONENT:"e" | "E")"+" | "-")? < TOKEN_DECIMAL_DIGITS > >
+  < #TOKEN_DECIMAL_EXPONENT: ("e" | "E") ("+" | "-")? < TOKEN_DECIMAL_DIGITS > >
 |
-  < #TOKEN_HEX_MANTISSA: ("_")? < TOKEN_HEX_DIGITS > "." (< TOKEN_HEX_DIGITS >)? | ("_")? < TOKEN_HEX_DIGITS > | "." < TOKEN_HEX_DIGITS > >
+  < #TOKEN_HEX_MANTISSA: ( ("_")? < TOKEN_HEX_DIGITS > "." (< TOKEN_HEX_DIGITS >)? ) | ( ("_")? < TOKEN_HEX_DIGITS > ) | ( "." < TOKEN_HEX_DIGITS > ) >
 |
-  < #TOKEN_HEX_EXPONENT: ("p" | "P"("+" | "-")? < TOKEN_DECIMAL_DIGITS > >
+  < #TOKEN_HEX_EXPONENT: ("p" | "P") ("+" | "-")? < TOKEN_DECIMAL_DIGITS > >
 |
-  < TOKEN_DECIMAL_FLOAT_LITERAL: < TOKEN_DECIMAL_DIGITS > "." < TOKEN_DECIMAL_DIGITS >? < TOKEN_DECIMAL_EXPONENT >? | < TOKEN_DECIMAL_DIGITS > < TOKEN_DECIMAL_EXPONENT > | "." < TOKEN_DECIMAL_DIGITS > < TOKEN_DECIMAL_EXPONENT > )? >
+  < TOKEN_DECIMAL_FLOAT_LITERAL: ( < TOKEN_DECIMAL_DIGITS > "." ( < TOKEN_DECIMAL_DIGITS > )? ( < TOKEN_DECIMAL_EXPONENT > )? ) | ( < TOKEN_DECIMAL_DIGITS > < TOKEN_DECIMAL_EXPONENT > ) | ( "." < TOKEN_DECIMAL_DIGITS > ( < TOKEN_DECIMAL_EXPONENT > )? ) >
 |
-  < TOKEN_HEX_FLOAT_LITERAL: "0" ("x" | "X"< TOKEN_HEX_MANTISSA > < TOKEN_HEX_EXPONENT > >
+  < TOKEN_HEX_FLOAT_LITERAL: "0" ("x" | "X") < TOKEN_HEX_MANTISSA > < TOKEN_HEX_EXPONENT > >
 |
   < #TOKEN_FLOAT_LITERAL: < TOKEN_DECIMAL_FLOAT_LITERAL > | < TOKEN_HEX_FLOAT_LITERAL > >
 |
-  < TOKEN_IMAGINARY_LITERAL:< TOKEN_DECIMAL_DIGITS > | < TOKEN_INT_LITERAL > | < TOKEN_FLOAT_LITERAL >"i" >
+  < TOKEN_IMAGINARY_LITERAL: (< TOKEN_DECIMAL_DIGITS > | < TOKEN_INT_LITERAL > | < TOKEN_FLOAT_LITERAL >) "i" >
 |
   /** Runas */
   < #TOKEN_OCTAL_BYTE_VALUE: "\\" (< TOKEN_OCTAL_DIGIT >){3} >
 |
-  < #TOKEN_HEX_BYTE_VALUE: "\\" "x"< TOKEN_HEX_DIGIT >){2} >
+  < #TOKEN_HEX_BYTE_VALUE: "\\" "x" (< TOKEN_HEX_DIGIT >){2} >
 |
   < #TOKEN_LITTLE_U_VALUE: "\\" "u" (< TOKEN_HEX_DIGIT >){4} >
 |
   < #TOKEN_BIG_U_VALUE: "\\" "U" (< TOKEN_HEX_DIGIT >){8} >
 |
-  < #TOKEN_ESCAPED_CHAR: "\\" "a" | "b" | "f" | "n" | "r" | "t" | "v" | "\\" | "'" | "\"" >
+  < #TOKEN_ESCAPED_CHAR: "\\" ( "a" | "b" | "f" | "n" | "r" | "t" | "v" | "\\" | "'" | "\"" ) >
 |
   < #TOKEN_BYTE_VALUE: < TOKEN_OCTAL_BYTE_VALUE > | < TOKEN_HEX_BYTE_VALUE > >
 |
   < #TOKEN_UNICODE_VALUE: < TOKEN_UNICODE_CHAR > | < TOKEN_LITTLE_U_VALUE > | < TOKEN_BIG_U_VALUE > | < TOKEN_ESCAPED_CHAR > >
 |
-  < TOKEN_RUNE_LITERAL: "'" < TOKEN_UNICODE_VALUE > | < TOKEN_BYTE_VALUE > "'" >
+  < TOKEN_RUNE_LITERAL: "'" ( < TOKEN_UNICODE_VALUE > | < TOKEN_BYTE_VALUE > ) "'" >
 |
   /** Strings */
   < #TOKEN_STRING_LITERAL: < TOKEN_RAW_STRING_LITERAL > | < TOKEN_INTERPRETED_STRING_LITERAL > >
 |
   /** Identificadores */
-  < TOKEN_IDENTIFIER: < TOKEN_LETTER > < TOKEN_LETTER > | < TOKEN_UNICODE_DIGIT >* >
+  < TOKEN_IDENTIFIER: < TOKEN_LETTER > ( < TOKEN_LETTER > | < TOKEN_UNICODE_DIGIT > )* >
 }
 
 
@@ -404,7 +404,7 @@ void Inicio():
   Token t;
 }
 {
- 
+  (
     t = < TOKEN_ANY >
     {
       System.out.println("TOKEN_ANY " + t.image);
