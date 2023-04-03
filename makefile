@@ -7,6 +7,7 @@ GERADOR_LEXICO = gerador_lexico.py
 NOME_GRAMATICA = gramatica
 EXTENSAO_GRAMATICA = gramatica
 GERAR_GRAMATICA = gerar_gramatica.py
+GRAMATICA_REDUZIDA = gram_red.py
 
 all: lexico sintatico
 
@@ -17,7 +18,7 @@ sintatico: gerar_gramatica
 
 # Comandos
 java:
-	java $(NOME_CLASSE)
+	@java $(NOME_CLASSE)
 
 javac: 
 	javac *.java
@@ -30,6 +31,9 @@ gerador_lexico: $(GERADOR_LEXICO)
 
 gerar_gramatica: $(GERAR_GRAMATICA)
 	py $(GERAR_GRAMATICA) > $(NOME_GRAMATICA).$(EXTENSAO_GRAMATICA)
+
+gram_red: $(GRAMATICA_REDUZIDA)
+	py $(GRAMATICA_REDUZIDA) > gramatica.conf
 
 clean:
 	rm *.class *.java
