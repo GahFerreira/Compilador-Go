@@ -27,7 +27,7 @@ definida l� dentro, ele ser� pulado, mas far� parte do pr�ximo token a s
 */
 < IN_RAW_STRING_LITERAL > TOKEN:
 {
-  < TOKEN_RAW_STRING_LITERAL: "`" > : DEFAULT
+  < TOKEN_RAW_STRING_LITERAL: "`" > : NLSEMI
 }
 
 < IN_RAW_STRING_LITERAL > MORE:
@@ -39,7 +39,7 @@ definida l� dentro, ele ser� pulado, mas far� parte do pr�ximo token a s
 
 < IN_INTERPRETED_STRING_LITERAL > TOKEN:
 {
-  < TOKEN_INTERPRETED_STRING_LITERAL: "\"" > : DEFAULT
+  < TOKEN_INTERPRETED_STRING_LITERAL: "\"" > : NLSEMI
 }
 
 < IN_INTERPRETED_STRING_LITERAL > MORE:
@@ -49,6 +49,29 @@ definida l� dentro, ele ser� pulado, mas far� parte do pr�ximo token a s
   < TOKEN_IN_INTERPRETED_STRING_LITERAL_UNICODE_VALUE: < TOKEN_UNICODE_VALUE > >
 |
   < TOKEN_IN_INTERPRETED_STRING_LITERAL_BYTE_VALUE: < TOKEN_BYTE_VALUE > >
+}
+
+< NLSEMI > TOKEN:
+{
+  < TOKEN_EOS : 
+    < TOKEN_NEWLINE >
+  | 
+    < TOKEN_CARRIAGE_RETURN >
+  |
+    < TOKEN_GENERAL_COMMENT > > : DEFAULT
+}
+
+< NLSEMI > SKIP:
+{
+  < NLSEMI_SKIP_SPACE: < TOKEN_SPACE > >
+|
+  < NLSEMI_SKIP_HORIZONTAL_TAB: < TOKEN_HORIZONTAL_TAB > >
+}
+
+// Simplesmente troca o estado.
+< NLSEMI > MORE:
+{
+  < "" > : DEFAULT
 }
 
 MORE:
@@ -71,6 +94,13 @@ SKIP:
   < TOKEN_NEWLINE: "\n" >
 }
 
+SPECIAL_TOKEN:
+{
+  /** Coment�rios */
+  < TOKEN_LINE_COMMENT: "//" (~["\n", "\r"])* >
+|
+  < TOKEN_GENERAL_COMMENT: "/*" (~[])* "*/" >
+}
 
 TOKEN:
 {
@@ -158,7 +188,7 @@ TOKEN:
   < TOKEN_RECOVER: "recover" >
 |
   /** Palavras-Chave */
-  < TOKEN_BREAK: "break" >
+  < TOKEN_BREAK: "break" > : NLSEMI
 |
   < TOKEN_DEFAULT: "default" >
 |
@@ -190,7 +220,7 @@ TOKEN:
 |
   < TOKEN_CONST: "const" >
 |
-  < TOKEN_FALLTHROUGH: "fallthrough" >
+  < TOKEN_FALLTHROUGH: "fallthrough" > : NLSEMI
 |
   < TOKEN_IF: "if" >
 |
@@ -198,18 +228,18 @@ TOKEN:
 |
   < TOKEN_TYPE: "type" >
 |
-  < TOKEN_CONTINUE: "continue" >
+  < TOKEN_CONTINUE: "continue" > : NLSEMI
 |
   < TOKEN_FOR: "for" >
 |
   < TOKEN_IMPORT: "import" >
 |
-  < TOKEN_RETURN: "return" >
+  < TOKEN_RETURN: "return" > : NLSEMI
 |
   < TOKEN_VAR: "var" >
 |
   /** Valor Zero */
-  < TOKEN_NIL: "nil" >
+  < TOKEN_NIL: "nil" > : NLSEMI
 |
   /** Unicode */
   < #TOKEN_UNICODE_CHAR: ~["\n"] >
@@ -229,11 +259,6 @@ TOKEN:
 |
   < #TOKEN_HEX_DIGIT: ["0"-"9", "A"-"F", "a"-"f"] >
 |
-  /** Coment�rios */
-  < TOKEN_LINE_COMMENT: "//" (~["\n", "\r"])* >
-|
-  < TOKEN_GENERAL_COMMENT: "/*" (~[])* "*/" >
-|
   /** Operadores */
   < TOKEN_DIFFERENT: "!=" >
 |
@@ -247,15 +272,15 @@ TOKEN:
 |
   < TOKEN_OPEN_PARENTHESIS: "(" >
 |
-  < TOKEN_CLOSE_PARENTHESIS: ")" >
+  < TOKEN_CLOSE_PARENTHESIS: ")" > : NLSEMI
 |
   < TOKEN_OPEN_BRACKET: "[" >
 |
-  < TOKEN_CLOSE_BRACKET: "]" >
+  < TOKEN_CLOSE_BRACKET: "]" > : NLSEMI
 |
   < TOKEN_OPEN_BRACE: "{" >
 |
-  < TOKEN_CLOSE_BRACE: "}" >
+  < TOKEN_CLOSE_BRACE: "}" > : NLSEMI
 |
   < TOKEN_COMMA: "," >
 |
@@ -271,9 +296,9 @@ TOKEN:
 |
   < TOKEN_CHANNEL_DIRECTION: "<-" >
 |
-  < TOKEN_PLUS_PLUS: "++" >
+  < TOKEN_PLUS_PLUS: "++" > : NLSEMI
 |
-  < TOKEN_MINUS_MINUS: "--" >
+  < TOKEN_MINUS_MINUS: "--" > : NLSEMI
 |
   < TOKEN_BIT_AND_NOT_ASSIGN: "&^=" >
 |
@@ -340,13 +365,13 @@ TOKEN:
 |
   < #TOKEN_HEX_DIGITS: < TOKEN_HEX_DIGIT > ( ("_")? < TOKEN_HEX_DIGIT > )* >
 |
-  < TOKEN_BINARY_LITERAL: "0" ("b" | "B") ("_")? < TOKEN_BINARY_DIGITS  > >
+  < TOKEN_BINARY_LITERAL: "0" ("b" | "B") ("_")? < TOKEN_BINARY_DIGITS  > > : NLSEMI
 |
-  < TOKEN_OCTAL_LITERAL: "0" ("o" | "O")? ("_")? < TOKEN_OCTAL_DIGITS > >
+  < TOKEN_OCTAL_LITERAL: "0" ("o" | "O")? ("_")? < TOKEN_OCTAL_DIGITS > > : NLSEMI
 |
-  < TOKEN_DECIMAL_LITERAL: "0" | ( ["1"-"9"] ( ("_")? < TOKEN_DECIMAL_DIGITS > )? ) >
+  < TOKEN_DECIMAL_LITERAL: "0" | ( ["1"-"9"] ( ("_")? < TOKEN_DECIMAL_DIGITS > )? ) > : NLSEMI
 |
-  < TOKEN_HEX_LITERAL: "0" ("x" | "X") ("_")? < TOKEN_HEX_DIGITS > >
+  < TOKEN_HEX_LITERAL: "0" ("x" | "X") ("_")? < TOKEN_HEX_DIGITS > > : NLSEMI
 |
   < #TOKEN_INT_LITERAL: < TOKEN_BINARY_LITERAL > | < TOKEN_OCTAL_LITERAL > | < TOKEN_DECIMAL_LITERAL > | < TOKEN_HEX_LITERAL > >
 |
@@ -356,13 +381,13 @@ TOKEN:
 |
   < #TOKEN_HEX_EXPONENT: ("p" | "P") ("+" | "-")? < TOKEN_DECIMAL_DIGITS > >
 |
-  < TOKEN_DECIMAL_FLOAT_LITERAL: ( < TOKEN_DECIMAL_DIGITS > "." ( < TOKEN_DECIMAL_DIGITS > )? ( < TOKEN_DECIMAL_EXPONENT > )? ) | ( < TOKEN_DECIMAL_DIGITS > < TOKEN_DECIMAL_EXPONENT > ) | ( "." < TOKEN_DECIMAL_DIGITS > ( < TOKEN_DECIMAL_EXPONENT > )? ) >
+  < TOKEN_DECIMAL_FLOAT_LITERAL: ( < TOKEN_DECIMAL_DIGITS > "." ( < TOKEN_DECIMAL_DIGITS > )? ( < TOKEN_DECIMAL_EXPONENT > )? ) | ( < TOKEN_DECIMAL_DIGITS > < TOKEN_DECIMAL_EXPONENT > ) | ( "." < TOKEN_DECIMAL_DIGITS > ( < TOKEN_DECIMAL_EXPONENT > )? ) > : NLSEMI
 |
-  < TOKEN_HEX_FLOAT_LITERAL: "0" ("x" | "X") < TOKEN_HEX_MANTISSA > < TOKEN_HEX_EXPONENT > >
+  < TOKEN_HEX_FLOAT_LITERAL: "0" ("x" | "X") < TOKEN_HEX_MANTISSA > < TOKEN_HEX_EXPONENT > > : NLSEMI
 |
   < #TOKEN_FLOAT_LITERAL: < TOKEN_DECIMAL_FLOAT_LITERAL > | < TOKEN_HEX_FLOAT_LITERAL > >
 |
-  < TOKEN_IMAGINARY_LITERAL: (< TOKEN_DECIMAL_DIGITS > | < TOKEN_INT_LITERAL > | < TOKEN_FLOAT_LITERAL >) "i" >
+  < TOKEN_IMAGINARY_LITERAL: (< TOKEN_DECIMAL_DIGITS > | < TOKEN_INT_LITERAL > | < TOKEN_FLOAT_LITERAL >) "i" > : NLSEMI
 |
   /** Runas */
   < #TOKEN_OCTAL_BYTE_VALUE: "\\" (< TOKEN_OCTAL_DIGIT >){3} >
@@ -379,13 +404,13 @@ TOKEN:
 |
   < #TOKEN_UNICODE_VALUE: < TOKEN_UNICODE_CHAR > | < TOKEN_LITTLE_U_VALUE > | < TOKEN_BIG_U_VALUE > | < TOKEN_ESCAPED_CHAR > >
 |
-  < TOKEN_RUNE_LITERAL: "'" ( < TOKEN_UNICODE_VALUE > | < TOKEN_BYTE_VALUE > ) "'" >
+  < TOKEN_RUNE_LITERAL: "'" ( < TOKEN_UNICODE_VALUE > | < TOKEN_BYTE_VALUE > ) "'" > : NLSEMI
 |
   /** Strings */
   < #TOKEN_STRING_LITERAL: < TOKEN_RAW_STRING_LITERAL > | < TOKEN_INTERPRETED_STRING_LITERAL > >
 |
   /** Identificadores */
-  < TOKEN_IDENTIFIER: < TOKEN_LETTER > ( < TOKEN_LETTER > | < TOKEN_UNICODE_DIGIT > )* >
+  < TOKEN_IDENTIFIER: < TOKEN_LETTER > ( < TOKEN_LETTER > | < TOKEN_UNICODE_DIGIT > )* > : NLSEMI
 }
 
 
@@ -871,20 +896,6 @@ void Inicio():
 
     |
 
-    t = < TOKEN_LINE_COMMENT >
-    {
-      System.out.println("TOKEN_LINE_COMMENT" + " " + t.image);
-    }
-
-    |
-
-    t = < TOKEN_GENERAL_COMMENT >
-    {
-      System.out.println("TOKEN_GENERAL_COMMENT" + " " + t.image);
-    }
-
-    |
-
     t = < TOKEN_DIFFERENT >
     {
       System.out.println("TOKEN_DIFFERENT" + " " + t.image);
@@ -1281,7 +1292,17 @@ void Inicio():
     {
       System.out.println("TOKEN_IDENTIFIER" + " " + t.image);
     }
+
+    |
+
+    t = < TOKEN_EOS >
+    {
+      System.out.println("TOKEN_EOS" + " " + t.image);
+    }
   )*
 
-  < EOF >
+  t = < EOF >
+  {
+    System.out.println("TOKEN_EOF");
+  }
 }

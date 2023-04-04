@@ -35,12 +35,13 @@ constantes = [ 'TRUE', 'FALSE', 'IOTA' ]
 funcoes = [ 'APPEND', 'CAP', 'CLOSE', 'COMPLEX', 'COPY', 'DELETE', 'IMAG', 'LEN',
             'MAKE', 'NEW', 'PANIC', 'PRINTLN', 'PRINT', 'REAL', 'RECOVER' ]
 
-palavras_chave = [ 'BREAK', 'DEFAULT', 'FUNC', 'INTERFACE', 'SELECT', 'CASE',
+palavras_chave = [ ['BREAK', 'NLSEMI'], 'DEFAULT', 'FUNC', 'INTERFACE', 'SELECT', 'CASE',
                    'DEFER', 'GO', 'MAP', 'STRUCT', 'CHAN', 'ELSE', 'GOTO',
-                   'PACKAGE', 'SWITCH', 'CONST', 'FALLTHROUGH', 'IF', 'RANGE',
-                   'TYPE', 'CONTINUE', 'FOR', 'IMPORT', 'RETURN', 'VAR' ]
+                   'PACKAGE', 'SWITCH', 'CONST', ['FALLTHROUGH', 'NLSEMI'], 'IF', 'RANGE',
+                   'TYPE', ['CONTINUE', 'NLSEMI'], 'FOR', 'IMPORT', ['RETURN', 'NLSEMI'], 'VAR' ]
 
-valor_zero = [ 'NIL' ]
+# Vai pra NLSEMI porque funciona como um literal.
+valor_zero = [ ['NIL', 'NLSEMI'] ]
 
 # Tokens especiais: seus nomes e valores são distintos.
 comentarios = \
@@ -100,15 +101,15 @@ operadores = \
 
   'OPEN_PARENTHESIS': '"("',
 
-  'CLOSE_PARENTHESIS': '")"',
+  'CLOSE_PARENTHESIS': ['")"', 'NLSEMI'],
 
   'OPEN_BRACKET': '"["',
 
-  'CLOSE_BRACKET': '"]"',
+  'CLOSE_BRACKET': ['"]"', 'NLSEMI'],
 
   'OPEN_BRACE': '"{"',
 
-  'CLOSE_BRACE': '"}"',
+  'CLOSE_BRACE': ['"}"', 'NLSEMI'],
 
   'COMMA': '","',
 
@@ -124,9 +125,9 @@ operadores = \
 
   'CHANNEL_DIRECTION': '"<-"',
 
-  'PLUS_PLUS': '"++"',
+  'PLUS_PLUS': ['"++"', 'NLSEMI'],
 
-  'MINUS_MINUS': '"--"',
+  'MINUS_MINUS': ['"--"', 'NLSEMI'],
 
   'BIT_AND_NOT_ASSIGN': '"&^="',
 
@@ -199,13 +200,13 @@ numeros = \
 
 
   # Números Inteiros
-  'BINARY_LITERAL': f'''"0" ("b" | "B") ("_")? < {adaptar('BINARY_DIGITS')}  >''',
+  'BINARY_LITERAL': [f'''"0" ("b" | "B") ("_")? < {adaptar('BINARY_DIGITS')}  >''', 'NLSEMI'],
 
-  'OCTAL_LITERAL': f'''"0" ("o" | "O")? ("_")? < {adaptar('OCTAL_DIGITS')} >''',
+  'OCTAL_LITERAL': [f'''"0" ("o" | "O")? ("_")? < {adaptar('OCTAL_DIGITS')} >''', 'NLSEMI'],
 
-  'DECIMAL_LITERAL': f'''"0" | ( ["1"-"9"] ( ("_")? < {adaptar('DECIMAL_DIGITS')} > )? )''',
+  'DECIMAL_LITERAL': [f'''"0" | ( ["1"-"9"] ( ("_")? < {adaptar('DECIMAL_DIGITS')} > )? )''', 'NLSEMI'],
 
-  'HEX_LITERAL': f'''"0" ("x" | "X") ("_")? < {adaptar('HEX_DIGITS')} >''',
+  'HEX_LITERAL': [f'''"0" ("x" | "X") ("_")? < {adaptar('HEX_DIGITS')} >''', 'NLSEMI'],
 
   '#INT_LITERAL': 
     f'''< {adaptar('BINARY_LITERAL')} > | < {adaptar('OCTAL_LITERAL')} > | ''' +
@@ -225,11 +226,11 @@ numeros = \
 
   # Pontos Flutuantes
   'DECIMAL_FLOAT_LITERAL': 
-    f'''( < {adaptar('DECIMAL_DIGITS')} > "." ( < {adaptar('DECIMAL_DIGITS')} > )? ( < {adaptar('DECIMAL_EXPONENT')} > )? ) | ''' +
+    [f'''( < {adaptar('DECIMAL_DIGITS')} > "." ( < {adaptar('DECIMAL_DIGITS')} > )? ( < {adaptar('DECIMAL_EXPONENT')} > )? ) | ''' +
     f'''( < {adaptar('DECIMAL_DIGITS')} > < {adaptar('DECIMAL_EXPONENT')} > ) | ''' +
-    f'''( "." < {adaptar('DECIMAL_DIGITS')} > ( < {adaptar('DECIMAL_EXPONENT')} > )? )''',
+    f'''( "." < {adaptar('DECIMAL_DIGITS')} > ( < {adaptar('DECIMAL_EXPONENT')} > )? )''', 'NLSEMI'],
 
-  'HEX_FLOAT_LITERAL': f'''"0" ("x" | "X") < {adaptar('HEX_MANTISSA')} > < {adaptar('HEX_EXPONENT')} >''',
+  ['HEX_FLOAT_LITERAL': f'''"0" ("x" | "X") < {adaptar('HEX_MANTISSA')} > < {adaptar('HEX_EXPONENT')} >''', 'NLSEMI'],
 
   '#FLOAT_LITERAL':
     f'''< {adaptar('DECIMAL_FLOAT_LITERAL')} > | < {adaptar('HEX_FLOAT_LITERAL')} >''',
@@ -237,9 +238,9 @@ numeros = \
 
   # Números Imaginários
   'IMAGINARY_LITERAL': 
-    f'''(< {adaptar('DECIMAL_DIGITS')} > | ''' +
+    [f'''(< {adaptar('DECIMAL_DIGITS')} > | ''' +
     f'''< {adaptar('INT_LITERAL')} > | < {adaptar('FLOAT_LITERAL')} >) ''' +
-    f'''"i"'''
+    f'''"i"''', 'NLSEMI']
 }
 
 runas = \
@@ -263,7 +264,7 @@ runas = \
     f'''< {adaptar('BIG_U_VALUE')} > | ''' +
     f'''< {adaptar('ESCAPED_CHAR')} >''',
 
-  'RUNE_LITERAL': f'''"'" ( < {adaptar('UNICODE_VALUE')} > | < {adaptar('BYTE_VALUE')} > ) "'"'''
+  'RUNE_LITERAL': [f'''"'" ( < {adaptar('UNICODE_VALUE')} > | < {adaptar('BYTE_VALUE')} > ) "'"''', 'NLSEMI']
 }
 
 strings = \
@@ -275,7 +276,7 @@ strings = \
 identificadores = \
 {
   'IDENTIFIER': 
-    f'''< {adaptar('LETTER')} > ( < {adaptar('LETTER')} > | < {adaptar('UNICODE_DIGIT')} > )*'''
+    [f'''< {adaptar('LETTER')} > ( < {adaptar('LETTER')} > | < {adaptar('UNICODE_DIGIT')} > )*''', 'NLSEMI']
 }
 
 # Listando todas as listas de tokens
@@ -445,16 +446,30 @@ for nome_lista, lista in listas_de_tokens_normais.items():
   print(f'  /** {nome_lista} */')
 
   for token in lista:
-    print(f'  < {adaptar(token)}: "{token.lower()}" >',
-          f'|',
-          sep = '\n')
+    if isinstance(token, str):
+      print(f'  < {adaptar(token)}: "{token.lower()}" >',
+            f'|',
+            sep = '\n')
+    else:
+      valor_token = token[0]
+      prox_estado = token[1]
+      print(f'  < {adaptar(valor_token)}: "{valor_token.lower()}" > : {prox_estado}',
+            f'|',
+            sep = '\n')
 
 ## Tokens Especiais
 for nome_lista, lista in listas_de_tokens_especiais.items():
   print(f'  /** {nome_lista} */')
 
   for nome_token, valor_token in lista.items():
+    if isinstance(valor_token, str):
       print(f'  < {adaptar(nome_token)}: {valor_token} >',
+            f'|' if nome_token != ultimo_token_da_ultima_lista else '}\n\n',
+            sep = '\n')
+    else:
+      prox_estado = valor_token[1]
+      valor_token = valor_token[0]
+      print(f'  < {adaptar(nome_token)}: {valor_token} > : {prox_estado}',
             f'|' if nome_token != ultimo_token_da_ultima_lista else '}\n\n',
             sep = '\n')
 
