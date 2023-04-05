@@ -199,7 +199,7 @@ declaracao_import = \
     'ImportDeclSp*':
     [
         '',
-        f'ImportSpec {op(";")}? ImportDeclSp*'
+        f'ImportSpec {tk("EOS")} ImportDeclSp*'
     ],
 
     'ImportSpec':
@@ -249,16 +249,12 @@ string = \
 
 tokens_finais_condicionais = \
 {
-    f'{op(";")}?':
-    [
-        '',
-        f'{op(";")}'
-    ]
+
 }
 
 listas = \
 {
-    'Go': go,
+    'Arquivo Fonte': arquivo_fonte,
 
     'Cláusula de Pacote': clausula_pacote,
     'Declaração de Import': declaracao_import,
